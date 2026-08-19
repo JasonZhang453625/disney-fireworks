@@ -3,11 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Disney Magic Kingdom Fireworks · 梦幻城堡烟花盛典</title>
+  <title>Disney Magic Kingdom Fireworks</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -149,86 +146,6 @@
     <div class="water-shimmer"></div>
   </div>
 
-  <!-- UI Overlay -->
-  <div class="ui-overlay">
-    <!-- Top Header Bar -->
-    <div class="top-bar">
-      <div class="brand-title">
-        <span class="sparkle-icon">✨</span>
-        <h1>Disney Magic Kingdom</h1>
-        <span class="tag">Grand Fireworks</span>
-      </div>
-
-      <div class="top-controls">
-        <button class="btn-icon" id="btn-sound" title="开启/静音音效">
-          <span id="sound-icon">🔊</span>
-        </button>
-        <button class="btn-icon" id="btn-fullscreen" title="全屏沉浸体验">
-          <span>⛶</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Center Narrative Subtitles (Acts) -->
-    <div class="narrative-container" id="narrative-box">
-      <div class="act-badge" id="act-badge">Act I · The Magic Begins</div>
-      <div class="act-title" id="act-title">第一幕 · 奇迹序曲</div>
-      <div class="act-desc" id="act-desc">当星光洒落城堡，静谧的夜空孕育着最初的梦境...</div>
-    </div>
-
-    <!-- Bottom HUD Controls -->
-    <div class="bottom-bar">
-      <div class="timeline-box">
-        <div class="timeline-info">
-          <span>城堡盛典全景进程</span>
-          <span id="current-time-text">0:00 / 1:38</span>
-        </div>
-        <div class="timeline-bar-bg">
-          <div class="timeline-bar-fill" id="timeline-fill"></div>
-        </div>
-      </div>
-
-      <div class="control-hud">
-        <button class="btn-primary" id="btn-play-pause">
-          <span id="play-pause-icon">⏸</span>
-          <span id="play-pause-text">暂停演出</span>
-        </button>
-        <button class="btn-secondary" id="btn-climax">
-          <span>⚡</span>
-          <span>直接进入高潮</span>
-        </button>
-        <button class="btn-secondary" id="btn-restart">
-          <span>↺</span>
-          <span>重新开始</span>
-        </button>
-        <button class="btn-secondary" id="btn-barrage">
-          <span>🎆</span>
-          <span id="barrage-text">狂暴连发</span>
-        </button>
-      </div>
-
-      <div class="interactive-hint">
-        ✦ 点击屏幕任意位置可亲手发射定制烟花 ✦
-      </div>
-    </div>
-  </div>
-
-  <!-- Start Intro Modal -->
-  <div class="intro-modal" id="intro-modal">
-    <div class="intro-card">
-      <div class="intro-icon">🏰</div>
-      <h2>迪士尼梦幻城堡烟花盛典</h2>
-      <p>
-        准备好迎接一场无与伦比的视听盛宴！<br>
-        包含<strong>完整前摇序曲</strong>、<strong>童话城堡灯光投影</strong>与<strong>连续猛烈的终极璀璨烟花狂潮</strong>。
-      </p>
-      <button class="btn-primary btn-start" id="btn-start-show">
-        <span>✨</span>
-        <span>开启梦幻盛典</span>
-      </button>
-    </div>
-  </div>
-
   <!-- Scripts -->
   <script src="js/audio.js"></script>
   <script src="js/fireworks.js"></script>
@@ -239,89 +156,23 @@
       const engine = new FireworksEngine(canvas);
       const controller = new ShowController(engine);
 
-      const introModal = document.getElementById('intro-modal');
-      const btnStart = document.getElementById('btn-start-show');
-      const btnPlayPause = document.getElementById('btn-play-pause');
-      const playPauseIcon = document.getElementById('play-pause-icon');
-      const playPauseText = document.getElementById('play-pause-text');
-      const btnClimax = document.getElementById('btn-climax');
-      const btnRestart = document.getElementById('btn-restart');
-      const btnBarrage = document.getElementById('btn-barrage');
-      const btnSound = document.getElementById('btn-sound');
-      const soundIcon = document.getElementById('sound-icon');
-      const btnFullscreen = document.getElementById('btn-fullscreen');
+      // Auto-start immediately on load
+      controller.start();
 
-      let barrageInterval = null;
-
-      // Start Show
-      btnStart.addEventListener('click', () => {
-        introModal.classList.add('hidden');
-        controller.start();
-      });
-
-      // Play / Pause
-      btnPlayPause.addEventListener('click', () => {
-        if (controller.isPlaying) {
-          controller.pause();
-          playPauseIcon.textContent = '▶';
-          playPauseText.textContent = '继续演出';
-        } else {
-          controller.resume();
-          playPauseIcon.textContent = '⏸';
-          playPauseText.textContent = '暂停演出';
+      // Unlock AudioContext on first user interaction if blocked by browser policy
+      const unlockAudio = () => {
+        if (window.soundEngine) {
+          window.soundEngine.init();
+          window.soundEngine.resume();
         }
-      });
+        window.removeEventListener('click', unlockAudio);
+        window.removeEventListener('touchstart', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
 
-      // Skip to Climax (猛烈高潮)
-      btnClimax.addEventListener('click', () => {
-        controller.jumpToClimax();
-        playPauseIcon.textContent = '⏸';
-        playPauseText.textContent = '暂停演出';
-      });
-
-      // Restart
-      btnRestart.addEventListener('click', () => {
-        controller.restart();
-        playPauseIcon.textContent = '⏸';
-        playPauseText.textContent = '暂停演出';
-      });
-
-      // Barrage Mode Toggle
-      btnBarrage.addEventListener('click', () => {
-        if (barrageInterval) {
-          clearInterval(barrageInterval);
-          barrageInterval = null;
-          btnBarrage.classList.remove('active');
-        } else {
-          btnBarrage.classList.add('active');
-          barrageInterval = setInterval(() => {
-            const W = engine.width;
-            const H = engine.height;
-            const startX = W * (0.2 + Math.random() * 0.6);
-            const targetX = W * (0.1 + Math.random() * 0.8);
-            const targetY = H * (0.1 + Math.random() * 0.4);
-            const types = ['chrysanthemum', 'peony', 'willow', 'heart', 'ring', 'crossette', 'strobe', 'grandFinale'];
-            const type = types[Math.floor(Math.random() * types.length)];
-            engine.launch(startX, H * 0.88, targetX, targetY, type, 'grandRainbow', 1.3 + Math.random() * 0.5);
-          }, 160);
-        }
-      });
-
-      // Sound Toggle
-      btnSound.addEventListener('click', () => {
-        const muted = window.soundEngine.toggleMute();
-        soundIcon.textContent = muted ? '🔇' : '🔊';
-        btnSound.classList.toggle('active', !muted);
-      });
-
-      // Fullscreen Toggle
-      btnFullscreen.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-          document.documentElement.requestFullscreen().catch(() => {});
-        } else {
-          document.exitFullscreen().catch(() => {});
-        }
-      });
+      window.addEventListener('click', unlockAudio, { once: true });
+      window.addEventListener('touchstart', unlockAudio, { once: true });
+      window.addEventListener('keydown', unlockAudio, { once: true });
     });
   </script>
 </body>
