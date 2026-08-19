@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Disney Magic Kingdom Fireworks · 3D Immersive Experience</title>
+  <title>Disney Magic Kingdom Fireworks · Castle Island</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <div id="viewport">
-    <!-- 3D Sky, Deep Space & Nebulae -->
+    <!-- Deep Space, Starfield & Nebulae -->
     <div class="sky-bg"></div>
     <div class="nebula-glow"></div>
     <div class="stars-layer-1"></div>
     <div class="stars-layer-2"></div>
-    <div class="mountains-bg"></div>
 
-    <!-- 3D Volumetric Spotlights -->
+    <!-- 3D Volumetric Searchlights -->
     <div class="searchlights-rig" id="searchlights">
       <div class="spotlight-beam beam-left-1"></div>
       <div class="spotlight-beam beam-left-2"></div>
@@ -29,42 +28,62 @@
       <canvas id="fireworks-canvas"></canvas>
     </div>
 
-    <!-- Atmospheric Mist Layer -->
-    <div class="mist-layer"></div>
+    <!-- Low-altitude Lake Mist -->
+    <div class="lake-mist-layer"></div>
 
-    <!-- Exquisitely Detailed Disney Fairytale Castle Silhouette -->
-    <div id="castle-wrapper">
-      <div class="castle-container">
-        <svg class="castle-svg" viewBox="0 0 1200 680" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Fairy Tale Castle on an Enchanted Lake Island -->
+    <div id="castle-island-wrapper">
+      <div class="island-container">
+        <svg class="island-svg" viewBox="0 0 1200 700" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <!-- Wall Gradients with 3D Lighting -->
-            <linearGradient id="mainWallGrad" x1="600" y1="80" x2="600" y2="680" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#141938" />
-              <stop offset="35%" stop-color="#0c1126" />
-              <stop offset="70%" stop-color="#070a18" />
-              <stop offset="100%" stop-color="#02040a" />
+            <!-- Castle Wall Gradients -->
+            <linearGradient id="castleWallGrad" x1="600" y1="80" x2="600" y2="520" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#161c3d" />
+              <stop offset="40%" stop-color="#0e132c" />
+              <stop offset="80%" stop-color="#080b1b" />
+              <stop offset="100%" stop-color="#040610" />
             </linearGradient>
 
-            <linearGradient id="roofSpiresGrad" x1="600" y1="0" x2="600" y2="450" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#283a70" />
-              <stop offset="50%" stop-color="#182448" />
-              <stop offset="100%" stop-color="#0d1428" />
+            <linearGradient id="spireRoofGrad" x1="600" y1="0" x2="600" y2="400" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#2a3c75" />
+              <stop offset="50%" stop-color="#1b264d" />
+              <stop offset="100%" stop-color="#0d142a" />
             </linearGradient>
 
-            <linearGradient id="goldTrimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#FFEAA7" />
+            <linearGradient id="goldFinialGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFF3B0" />
               <stop offset="50%" stop-color="#FFD700" />
-              <stop offset="100%" stop-color="#E17055" />
+              <stop offset="100%" stop-color="#E67E22" />
             </linearGradient>
 
-            <radialGradient id="clockRoseGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stop-color="#FFF8DB" />
-              <stop offset="40%" stop-color="#FFD700" />
+            <!-- Island & Nature Gradients -->
+            <linearGradient id="islandTopGrad" x1="600" y1="460" x2="600" y2="600" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#0d1829" />
+              <stop offset="35%" stop-color="#08101e" />
+              <stop offset="100%" stop-color="#03060c" />
+            </linearGradient>
+
+            <linearGradient id="islandCliffGrad" x1="600" y1="520" x2="600" y2="660" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#090e1d" />
+              <stop offset="50%" stop-color="#050813" />
+              <stop offset="100%" stop-color="#010307" />
+            </linearGradient>
+
+            <radialGradient id="clockGlowGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#FFF9E6" />
+              <stop offset="45%" stop-color="#FFD700" />
               <stop offset="85%" stop-color="#FF9F43" />
               <stop offset="100%" stop-color="rgba(255,159,67,0)" />
             </radialGradient>
 
-            <!-- Warm Window Glow Filter -->
+            <!-- Water Island Reflection Gradient -->
+            <linearGradient id="waterShoreGrad" x1="600" y1="580" x2="600" y2="700" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="rgba(255,215,0,0.18)" />
+              <stop offset="25%" stop-color="rgba(100,160,255,0.12)" />
+              <stop offset="70%" stop-color="rgba(10,20,50,0.06)" />
+              <stop offset="100%" stop-color="transparent" />
+            </linearGradient>
+
             <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
               <feGaussianBlur stdDeviation="3.5" result="blur" />
               <feComposite in="SourceGraphic" in2="blur" operator="over" />
@@ -76,125 +95,160 @@
             </filter>
           </defs>
 
-          <!-- Flying Buttresses / Side Arches -->
-          <path d="M 280 500 C 230 460 210 380 200 350 L 220 350 C 230 380 250 450 300 490 Z" fill="url(#mainWallGrad)" />
-          <path d="M 920 500 C 970 460 990 380 1000 350 L 980 350 C 970 380 950 450 900 490 Z" fill="url(#mainWallGrad)" />
+          <!-- ============================================== -->
+          <!-- 1. CASTLE STRUCTURE ON TOP OF ISLAND -->
+          <!-- ============================================== -->
 
-          <!-- Main Bastion & Base Curtain Walls -->
-          <rect x="240" y="470" width="720" height="210" fill="url(#mainWallGrad)" />
-          <rect x="320" y="380" width="560" height="110" fill="url(#mainWallGrad)" />
-          <rect x="420" y="270" width="360" height="130" fill="url(#mainWallGrad)" />
+          <!-- Flying Buttresses -->
+          <path d="M 310 440 C 260 410 240 350 230 320 L 250 320 C 260 350 280 400 330 430 Z" fill="url(#castleWallGrad)" />
+          <path d="M 890 440 C 940 410 960 350 970 320 L 950 320 C 940 350 920 400 870 430 Z" fill="url(#castleWallGrad)" />
 
-          <!-- Crenellations / Stone Battlements -->
-          <path d="M 240 470 h 720 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 h -24 v -18 h -16 v 18 Z" fill="url(#mainWallGrad)" />
-          <path d="M 320 380 h 560 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 h -20 v -16 h -14 v 16 Z" fill="url(#mainWallGrad)" />
+          <!-- Castle Main Blocks -->
+          <rect x="280" y="410" width="640" height="110" fill="url(#castleWallGrad)" />
+          <rect x="340" y="320" width="520" height="100" fill="url(#castleWallGrad)" />
+          <rect x="430" y="230" width="340" height="110" fill="url(#castleWallGrad)" />
 
-          <!-- Level 1 Outer Spires (Far Wings) -->
-          <rect x="180" y="420" width="65" height="260" fill="url(#mainWallGrad)" />
-          <polygon points="170,420 212,280 255,420" fill="url(#roofSpiresGrad)" />
-          <line x1="212" y1="280" x2="212" y2="245" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="212,245 228,253 212,262" fill="url(#goldTrimGrad)" />
-          <circle cx="212" cy="245" r="3" fill="#FFF" filter="url(#softGlow)" />
+          <!-- Crenellations -->
+          <path d="M 280 410 h 640 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 Z" fill="url(#castleWallGrad)" />
+          <path d="M 340 320 h 520 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 Z" fill="url(#castleWallGrad)" />
 
-          <rect x="955" y="420" width="65" height="260" fill="url(#mainWallGrad)" />
-          <polygon points="945,420 987,280 1030,420" fill="url(#roofSpiresGrad)" />
-          <line x1="987" y1="280" x2="987" y2="245" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="987,245 1003,253 987,262" fill="url(#goldTrimGrad)" />
-          <circle cx="987" cy="245" r="3" fill="#FFF" filter="url(#softGlow)" />
+          <!-- Level 1 Outer Spires -->
+          <rect x="220" y="360" width="60" height="170" fill="url(#castleWallGrad)" />
+          <polygon points="210,360 250,230 290,360" fill="url(#spireRoofGrad)" />
+          <line x1="250" y1="230" x2="250" y2="198" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="250,198 265,206 250,214" fill="url(#goldFinialGrad)" />
+          <circle cx="250" cy="198" r="3" fill="#FFF" filter="url(#softGlow)" />
+
+          <rect x="920" y="360" width="60" height="170" fill="url(#castleWallGrad)" />
+          <polygon points="910,360 950,230 990,360" fill="url(#spireRoofGrad)" />
+          <line x1="950" y1="230" x2="950" y2="198" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="950,198 965,206 950,214" fill="url(#goldFinialGrad)" />
+          <circle cx="950" cy="198" r="3" fill="#FFF" filter="url(#softGlow)" />
 
           <!-- Level 2 Mid Towers -->
-          <rect x="290" y="320" width="70" height="220" fill="url(#mainWallGrad)" />
-          <polygon points="278,320 325,180 372,320" fill="url(#roofSpiresGrad)" />
-          <line x1="325" y1="180" x2="325" y2="150" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="325,150 340,158 325,166" fill="url(#goldTrimGrad)" />
-          <circle cx="325" cy="150" r="3.5" fill="#FFF" filter="url(#softGlow)" />
+          <rect x="310" y="270" width="65" height="160" fill="url(#castleWallGrad)" />
+          <polygon points="300,270 342,140 385,270" fill="url(#spireRoofGrad)" />
+          <line x1="342" y1="140" x2="342" y2="110" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="342,110 357,118 342,126" fill="url(#goldFinialGrad)" />
+          <circle cx="342" cy="110" r="3.5" fill="#FFF" filter="url(#softGlow)" />
 
-          <rect x="840" y="320" width="70" height="220" fill="url(#mainWallGrad)" />
-          <polygon points="828,320 875,180 922,320" fill="url(#roofSpiresGrad)" />
-          <line x1="875" y1="180" x2="875" y2="150" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="875,150 890,158 875,166" fill="url(#goldTrimGrad)" />
-          <circle cx="875" cy="150" r="3.5" fill="#FFF" filter="url(#softGlow)" />
+          <rect x="825" y="270" width="65" height="160" fill="url(#castleWallGrad)" />
+          <polygon points="815,270 857,140 900,270" fill="url(#spireRoofGrad)" />
+          <line x1="857" y1="140" x2="857" y2="110" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="857,110 872,118 857,126" fill="url(#goldFinialGrad)" />
+          <circle cx="857" cy="110" r="3.5" fill="#FFF" filter="url(#softGlow)" />
 
           <!-- Level 3 Inner Flanking Spires -->
-          <rect x="390" y="220" width="55" height="190" fill="url(#mainWallGrad)" />
-          <polygon points="380,220 417,90 455,220" fill="url(#roofSpiresGrad)" />
-          <line x1="417" y1="90" x2="417" y2="62" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="417,62 432,70 417,78" fill="url(#goldTrimGrad)" />
-          <circle cx="417" cy="62" r="3" fill="#FFF" filter="url(#softGlow)" />
+          <rect x="400" y="180" width="52" height="170" fill="url(#castleWallGrad)" />
+          <polygon points="392,180 426,60 460,180" fill="url(#spireRoofGrad)" />
+          <line x1="426" y1="60" x2="426" y2="35" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="426,35 440,43 426,50" fill="url(#goldFinialGrad)" />
+          <circle cx="426" cy="35" r="3" fill="#FFF" filter="url(#softGlow)" />
 
-          <rect x="755" y="220" width="55" height="190" fill="url(#mainWallGrad)" />
-          <polygon points="745,220 782,90 820,220" fill="url(#roofSpiresGrad)" />
-          <line x1="782" y1="90" x2="782" y2="62" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <polygon points="782,62 797,70 782,78" fill="url(#goldTrimGrad)" />
-          <circle cx="782" cy="62" r="3" fill="#FFF" filter="url(#softGlow)" />
+          <rect x="748" y="180" width="52" height="170" fill="url(#castleWallGrad)" />
+          <polygon points="740,180 774,60 808,180" fill="url(#spireRoofGrad)" />
+          <line x1="774" y1="60" x2="774" y2="35" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <polygon points="774,35 788,43 774,50" fill="url(#goldFinialGrad)" />
+          <circle cx="774" cy="35" r="3" fill="#FFF" filter="url(#softGlow)" />
 
-          <!-- Grand Center Clock Tower & Spire Apex -->
-          <rect x="520" y="150" width="160" height="280" fill="url(#mainWallGrad)" />
-          <polygon points="495,150 600,10 705,150" fill="url(#roofSpiresGrad)" />
+          <!-- Grand Center Clock Tower & Spire Pinnacle -->
+          <rect x="525" y="120" width="150" height="240" fill="url(#castleWallGrad)" />
+          <polygon points="500,120 600,-10 700,120" fill="url(#spireRoofGrad)" />
           
-          <!-- Tower Spire Pinnacle & Magical Star -->
-          <line x1="600" y1="10" x2="600" y2="-30" stroke="url(#goldTrimGrad)" stroke-width="3.5" />
-          <polygon points="600,-30 622,-18 600,-6" fill="url(#goldTrimGrad)" />
-          <circle cx="600" cy="-30" r="5.5" fill="#FFFFFF" filter="url(#megaGlow)" />
+          <!-- Tower Spire Tip & Star -->
+          <line x1="600" y1="-10" x2="600" y2="-45" stroke="url(#goldFinialGrad)" stroke-width="3.5" />
+          <polygon points="600,-45 622,-33 600,-21" fill="url(#goldFinialGrad)" />
+          <circle cx="600" cy="-45" r="5.5" fill="#FFFFFF" filter="url(#megaGlow)" />
 
-          <!-- Arched Grand Castle Portal -->
-          <path d="M 545 680 v -105 a 55 55 0 0 1 110 0 v 105 Z" fill="#03050c" stroke="rgba(255,215,0,0.5)" stroke-width="2.5" />
-          <path d="M 560 680 v -85 a 40 40 0 0 1 80 0 v 85 Z" fill="#ffd700" opacity="0.18" filter="url(#softGlow)" />
+          <!-- Arched Grand Portal Gate -->
+          <path d="M 550 520 v -80 a 50 50 0 0 1 100 0 v 80 Z" fill="#02040a" stroke="rgba(255,215,0,0.5)" stroke-width="2.5" />
+          <path d="M 565 520 v -65 a 35 35 0 0 1 70 0 v 65 Z" fill="#ffd700" opacity="0.18" filter="url(#softGlow)" />
 
           <!-- Majestic Rose Window / Clock Facet -->
-          <circle cx="600" cy="225" r="32" fill="#141d3b" stroke="url(#goldTrimGrad)" stroke-width="2.5" />
-          <circle cx="600" cy="225" r="25" fill="url(#clockRoseGlow)" filter="url(#softGlow)" opacity="0.9" />
-          <circle cx="600" cy="225" r="10" fill="#FFFFFF" />
+          <circle cx="600" cy="190" r="30" fill="#141c38" stroke="url(#goldFinialGrad)" stroke-width="2.5" />
+          <circle cx="600" cy="190" r="23" fill="url(#clockGlowGrad)" filter="url(#softGlow)" opacity="0.92" />
+          <circle cx="600" cy="190" r="9" fill="#FFFFFF" />
 
-          <!-- Glowing Arched Castle Windows with Atmospheric Light -->
-          <!-- Upper Spires -->
-          <path d="M 575 305 v -25 a 12 12 0 0 1 24 0 v 25 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.95" />
-          <path d="M 605 305 v -25 a 12 12 0 0 1 24 0 v 25 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.95" />
+          <!-- Glowing Windows with Interior Warm Light -->
+          <path d="M 578 265 v -22 a 10 10 0 0 1 20 0 v 22 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.95" />
+          <path d="M 602 265 v -22 a 10 10 0 0 1 20 0 v 22 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.95" />
 
-          <!-- Mid Spires Windows -->
-          <path d="M 405 285 v -20 a 10 10 0 0 1 20 0 v 20 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.9" />
-          <path d="M 770 285 v -20 a 10 10 0 0 1 20 0 v 20 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.9" />
+          <path d="M 416 245 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.9" />
+          <path d="M 768 245 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.9" />
 
-          <!-- Outer Spire Windows -->
-          <path d="M 315 390 v -22 a 10 10 0 0 1 20 0 v 22 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.88" />
-          <path d="M 865 390 v -22 a 10 10 0 0 1 20 0 v 22 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.88" />
+          <path d="M 334 340 v -20 a 9 9 0 0 1 18 0 v 20 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.88" />
+          <path d="M 848 340 v -20 a 9 9 0 0 1 18 0 v 20 Z" fill="#FFEAA7" filter="url(#softGlow)" opacity="0.88" />
 
-          <!-- Wing Windows -->
-          <path d="M 202 485 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.85" />
-          <path d="M 977 485 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.85" />
+          <path d="M 242 420 v -16 a 7 7 0 0 1 14 0 v 16 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.85" />
+          <path d="M 944 420 v -16 a 7 7 0 0 1 14 0 v 16 Z" fill="#FFD700" filter="url(#softGlow)" opacity="0.85" />
 
-          <!-- Perimeter Fairy Light Garland along roof ridges -->
+          <!-- Roofline Fairy Light Garlands -->
           <g filter="url(#softGlow)">
-            <!-- Center Main Spire -->
-            <circle cx="495" cy="150" r="2.0" fill="#FFF" />
-            <circle cx="530" cy="103" r="2.0" fill="#FFD700" />
-            <circle cx="565" cy="56" r="2.2" fill="#FFF" />
-            <circle cx="600" cy="10" r="3.2" fill="#FFF" />
-            <circle cx="635" cy="56" r="2.2" fill="#FFF" />
-            <circle cx="670" cy="103" r="2.0" fill="#FFD700" />
-            <circle cx="705" cy="150" r="2.0" fill="#FFF" />
+            <circle cx="500" cy="120" r="2.0" fill="#FFF" />
+            <circle cx="533" cy="77" r="2.0" fill="#FFD700" />
+            <circle cx="566" cy="33" r="2.2" fill="#FFF" />
+            <circle cx="600" cy="-10" r="3.2" fill="#FFF" />
+            <circle cx="633" cy="33" r="2.2" fill="#FFF" />
+            <circle cx="666" cy="77" r="2.0" fill="#FFD700" />
+            <circle cx="700" cy="120" r="2.0" fill="#FFF" />
 
-            <!-- Left Tower Roof -->
-            <circle cx="380" cy="220" r="1.8" fill="#FFF" />
-            <circle cx="398" cy="155" r="1.8" fill="#FFD700" />
-            <circle cx="417" cy="90" r="2.5" fill="#FFF" />
-            <circle cx="436" cy="155" r="1.8" fill="#FFD700" />
-            <circle cx="455" cy="220" r="1.8" fill="#FFF" />
+            <circle cx="392" cy="180" r="1.8" fill="#FFF" />
+            <circle cx="409" cy="120" r="1.8" fill="#FFD700" />
+            <circle cx="426" cy="60" r="2.4" fill="#FFF" />
+            <circle cx="443" cy="120" r="1.8" fill="#FFD700" />
+            <circle cx="460" cy="180" r="1.8" fill="#FFF" />
 
-            <!-- Right Tower Roof -->
-            <circle cx="745" cy="220" r="1.8" fill="#FFF" />
-            <circle cx="763" cy="155" r="1.8" fill="#FFD700" />
-            <circle cx="782" cy="90" r="2.5" fill="#FFF" />
-            <circle cx="801" cy="155" r="1.8" fill="#FFD700" />
-            <circle cx="820" cy="220" r="1.8" fill="#FFF" />
+            <circle cx="740" cy="180" r="1.8" fill="#FFF" />
+            <circle cx="757" cy="120" r="1.8" fill="#FFD700" />
+            <circle cx="774" cy="60" r="2.4" fill="#FFF" />
+            <circle cx="791" cy="120" r="1.8" fill="#FFD700" />
+            <circle cx="808" cy="180" r="1.8" fill="#FFF" />
           </g>
+
+          <!-- ============================================== -->
+          <!-- 2. ENCHANTED LAKE ISLAND (水中岛屿) -->
+          <!-- ============================================== -->
+
+          <!-- Island Silhouette: Grassy slopes, rocky cliffs and shorelines -->
+          <!-- Upper Island Ridge -->
+          <path d="M 80 570 C 220 480, 480 470, 600 470 C 720 470, 980 480, 1120 570 C 950 560, 600 550, 80 570 Z" fill="url(#islandTopGrad)" />
+
+          <!-- Lower Island Rocky Cliff Banks entering water -->
+          <path d="M 80 570 C 180 530, 360 515, 600 515 C 840 515, 1020 530, 1120 570 C 1050 610, 850 625, 600 625 C 350 625, 150 610, 80 570 Z" fill="url(#islandCliffGrad)" />
+
+          <!-- Enchanted Trees Silhouettes on Island Flanks -->
+          <!-- Left Island Trees -->
+          <path d="M 120 560 L 140 480 L 160 560 Z" fill="#040712" />
+          <path d="M 150 565 L 175 460 L 200 565 Z" fill="#050a18" />
+          <path d="M 185 555 L 210 490 L 235 555 Z" fill="#040712" />
+          <path d="M 220 550 L 245 475 L 270 550 Z" fill="#060c20" />
+
+          <!-- Right Island Trees -->
+          <path d="M 930 550 L 955 475 L 980 550 Z" fill="#060c20" />
+          <path d="M 965 555 L 990 490 L 1015 555 Z" fill="#040712" />
+          <path d="M 1000 565 L 1025 460 L 1050 565 Z" fill="#050a18" />
+          <path d="M 1040 560 L 1060 480 L 1080 560 Z" fill="#040712" />
+
+          <!-- Stone Water Staircase / Dock descending to lake -->
+          <polygon points="560,520 640,520 660,590 540,590" fill="#060a16" stroke="rgba(255,215,0,0.3)" stroke-width="1" />
+          <line x1="550" y1="540" x2="650" y2="540" stroke="rgba(255,215,0,0.2)" stroke-width="1.5" />
+          <line x1="545" y1="565" x2="655" y2="565" stroke="rgba(255,215,0,0.2)" stroke-width="1.5" />
+
+          <!-- Island Shoreline Pier Lanterns -->
+          <circle cx="530" cy="580" r="3.5" fill="#FFEAA7" filter="url(#softGlow)" />
+          <circle cx="670" cy="580" r="3.5" fill="#FFEAA7" filter="url(#softGlow)" />
+          <circle cx="340" cy="555" r="2.5" fill="#FFD700" filter="url(#softGlow)" />
+          <circle cx="860" cy="555" r="2.5" fill="#FFD700" filter="url(#softGlow)" />
+
+          <!-- Island Organic Water Reflection & Golden Shimmer -->
+          <path d="M 100 575 C 300 640, 600 655, 1100 575 C 900 680, 300 680, 100 575 Z" fill="url(#waterShoreGrad)" opacity="0.8" />
         </svg>
       </div>
     </div>
 
-    <!-- 3D Lake Water & Dynamic Shimmering Reflection Plane -->
-    <div class="water-reflection-plane">
-      <div class="water-ripple-mesh"></div>
+    <!-- Natural Lake Water Surface -->
+    <div class="lake-water-surface">
+      <div class="lake-shimmer-ripples"></div>
     </div>
   </div>
 
