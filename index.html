@@ -2,8 +2,11 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Disney Magic Kingdom Fireworks · Castle Island</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000002">
+  <title>Disney Magic Kingdom Fireworks</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -76,7 +79,6 @@
               <stop offset="100%" stop-color="rgba(255,159,67,0)" />
             </radialGradient>
 
-            <!-- Water Island Reflection Gradient -->
             <linearGradient id="waterShoreGrad" x1="600" y1="580" x2="600" y2="700" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stop-color="rgba(255,215,0,0.18)" />
               <stop offset="25%" stop-color="rgba(100,160,255,0.12)" />
@@ -95,10 +97,6 @@
             </filter>
           </defs>
 
-          <!-- ============================================== -->
-          <!-- 1. CASTLE STRUCTURE ON TOP OF ISLAND -->
-          <!-- ============================================== -->
-
           <!-- Flying Buttresses -->
           <path d="M 310 440 C 260 410 240 350 230 320 L 250 320 C 260 350 280 400 330 430 Z" fill="url(#castleWallGrad)" />
           <path d="M 890 440 C 940 410 960 350 970 320 L 950 320 C 940 350 920 400 870 430 Z" fill="url(#castleWallGrad)" />
@@ -109,8 +107,8 @@
           <rect x="430" y="230" width="340" height="110" fill="url(#castleWallGrad)" />
 
           <!-- Crenellations -->
-          <path d="M 280 410 h 640 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 Z" fill="url(#castleWallGrad)" />
-          <path d="M 340 320 h 520 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 Z" fill="url(#castleWallGrad)" />
+          <path d="M 280 410 h 640 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 h -22 v -15 h -16 v 15 Z" fill="url(#castleWallGrad)" />
+          <path d="M 340 320 h 520 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 h -18 v -14 h -14 v 14 Z" fill="url(#castleWallGrad)" />
 
           <!-- Level 1 Outer Spires -->
           <rect x="220" y="360" width="60" height="170" fill="url(#castleWallGrad)" />
@@ -205,42 +203,33 @@
             <circle cx="808" cy="180" r="1.8" fill="#FFF" />
           </g>
 
-          <!-- ============================================== -->
-          <!-- 2. ENCHANTED LAKE ISLAND (水中岛屿) -->
-          <!-- ============================================== -->
-
-          <!-- Island Silhouette: Grassy slopes, rocky cliffs and shorelines -->
-          <!-- Upper Island Ridge -->
+          <!-- Island Silhouette -->
           <path d="M 80 570 C 220 480, 480 470, 600 470 C 720 470, 980 480, 1120 570 C 950 560, 600 550, 80 570 Z" fill="url(#islandTopGrad)" />
-
-          <!-- Lower Island Rocky Cliff Banks entering water -->
           <path d="M 80 570 C 180 530, 360 515, 600 515 C 840 515, 1020 530, 1120 570 C 1050 610, 850 625, 600 625 C 350 625, 150 610, 80 570 Z" fill="url(#islandCliffGrad)" />
 
           <!-- Enchanted Trees Silhouettes on Island Flanks -->
-          <!-- Left Island Trees -->
           <path d="M 120 560 L 140 480 L 160 560 Z" fill="#040712" />
           <path d="M 150 565 L 175 460 L 200 565 Z" fill="#050a18" />
           <path d="M 185 555 L 210 490 L 235 555 Z" fill="#040712" />
           <path d="M 220 550 L 245 475 L 270 550 Z" fill="#060c20" />
 
-          <!-- Right Island Trees -->
           <path d="M 930 550 L 955 475 L 980 550 Z" fill="#060c20" />
           <path d="M 965 555 L 990 490 L 1015 555 Z" fill="#040712" />
           <path d="M 1000 565 L 1025 460 L 1050 565 Z" fill="#050a18" />
           <path d="M 1040 560 L 1060 480 L 1080 560 Z" fill="#040712" />
 
-          <!-- Stone Water Staircase / Dock descending to lake -->
+          <!-- Stone Water Staircase / Dock -->
           <polygon points="560,520 640,520 660,590 540,590" fill="#060a16" stroke="rgba(255,215,0,0.3)" stroke-width="1" />
           <line x1="550" y1="540" x2="650" y2="540" stroke="rgba(255,215,0,0.2)" stroke-width="1.5" />
           <line x1="545" y1="565" x2="655" y2="565" stroke="rgba(255,215,0,0.2)" stroke-width="1.5" />
 
-          <!-- Island Shoreline Pier Lanterns -->
+          <!-- Pier Lanterns -->
           <circle cx="530" cy="580" r="3.5" fill="#FFEAA7" filter="url(#softGlow)" />
           <circle cx="670" cy="580" r="3.5" fill="#FFEAA7" filter="url(#softGlow)" />
           <circle cx="340" cy="555" r="2.5" fill="#FFD700" filter="url(#softGlow)" />
           <circle cx="860" cy="555" r="2.5" fill="#FFD700" filter="url(#softGlow)" />
 
-          <!-- Island Organic Water Reflection & Golden Shimmer -->
+          <!-- Island Water Reflection -->
           <path d="M 100 575 C 300 640, 600 655, 1100 575 C 900 680, 300 680, 100 575 Z" fill="url(#waterShoreGrad)" opacity="0.8" />
         </svg>
       </div>
@@ -265,7 +254,7 @@
       // Auto-start immediately
       controller.start();
 
-      // Unlock audio on first user touch/click/keypress
+      // Reliable iOS Safari / iPhone touch unlock
       const unlockAudio = () => {
         if (window.soundEngine) {
           window.soundEngine.init();
@@ -273,12 +262,12 @@
         }
         window.removeEventListener('click', unlockAudio);
         window.removeEventListener('touchstart', unlockAudio);
-        window.removeEventListener('keydown', unlockAudio);
+        window.removeEventListener('touchend', unlockAudio);
       };
 
-      window.addEventListener('click', unlockAudio, { once: true });
-      window.addEventListener('touchstart', unlockAudio, { once: true });
-      window.addEventListener('keydown', unlockAudio, { once: true });
+      window.addEventListener('click', unlockAudio, { once: true, passive: true });
+      window.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+      window.addEventListener('touchend', unlockAudio, { once: true, passive: true });
     });
   </script>
 </body>

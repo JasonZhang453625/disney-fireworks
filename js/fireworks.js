@@ -1,4 +1,4 @@
-﻿// High Precision 3D Fireworks Physics Engine
+﻿// High Precision 3D Fireworks Physics Engine - iPhone Retina & Touch Optimized
 const ColorPalettes = {
   disneyGold: ['#FFF8DB', '#FFE066', '#FFD700', '#FFAA00', '#FF8800'],
   royalFantasy: ['#70D6FF', '#FF70A6', '#FF9770', '#E9FF70', '#C77DFF', '#FFFFFF'],
@@ -71,13 +71,11 @@ class Particle3D {
 
     this.age++;
 
-    // Record trail in 3D space
     this.trail.push({ x: this.x, y: this.y, z: this.z, alpha: this.alpha });
     if (this.trail.length > this.trailLength) {
       this.trail.shift();
     }
 
-    // Apply 3D physics: aerodynamic drag & gravity
     this.vx *= this.drag;
     this.vz *= this.drag;
     this.vy = (this.vy * this.drag) + this.gravity;
@@ -88,7 +86,6 @@ class Particle3D {
 
     this.alpha -= this.decay;
 
-    // Crossette fracture
     if (this.type === 'crossette' && !this.hasCrossed) {
       this.crossDelay--;
       if (this.crossDelay <= 0) {
@@ -105,7 +102,6 @@ class Particle3D {
   draw(ctx, focalLength, centerX, centerY, waterLevel) {
     if (this.isDead) return;
 
-    // 3D Perspective Projection
     const scale = focalLength / (focalLength + this.z);
     if (scale <= 0) return;
 
@@ -118,13 +114,12 @@ class Particle3D {
       currentAlpha *= 0.25;
     }
 
-    // Color transition for ghost peonies
     let renderColor = this.color;
     if (this.secondaryColor && this.age > this.maxAge * 0.4) {
       renderColor = this.secondaryColor;
     }
 
-    // 1. Draw 3D Motion Trail
+    // 1. Motion Trail
     if (this.trail.length > 1) {
       ctx.beginPath();
       const first = this.trail[0];
@@ -143,28 +138,26 @@ class Particle3D {
       ctx.stroke();
     }
 
-    // 2. Draw Particle Head & Glowing Core
+    // 2. Head & Core
     ctx.beginPath();
     ctx.arc(projX, projY, projSize, 0, Math.PI * 2);
     ctx.fillStyle = renderColor;
     ctx.globalAlpha = currentAlpha;
     ctx.fill();
 
-    // High intensity core
     ctx.beginPath();
     ctx.arc(projX, projY, projSize * 0.45, 0, Math.PI * 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.globalAlpha = currentAlpha * 0.85;
     ctx.fill();
 
-    // 3. Real-time Lake Reflection (if particle above water plane)
+    // 3. Water Reflection
     if (projY < waterLevel) {
       const distFromWater = waterLevel - projY;
-      const refY = waterLevel + distFromWater * 0.45; // Perspective compressed reflection
+      const refY = waterLevel + distFromWater * 0.45;
       const refAlpha = currentAlpha * 0.18 * Math.min(1, scale);
 
       if (refY < ctx.canvas.height && refAlpha > 0.01) {
-        // Water ripple horizontal displacement
         const rippleX = projX + Math.sin(refY * 0.1 + Date.now() * 0.005) * 3;
         ctx.beginPath();
         ctx.ellipse(rippleX, refY, projSize * 1.6, projSize * 0.4, 0, 0, Math.PI * 2);
@@ -192,7 +185,7 @@ class Rocket3D {
     const dy = targetY - startY;
     const dz = targetZ - startZ;
     const distance = Math.hypot(dx, dy, dz);
-    this.speed = Math.min(22, Math.max(14, distance / 30));
+    this.speed = Math.min(22, Math.max(13, distance / 32));
 
     this.vx = (dx / distance) * this.speed;
     this.vy = (dy / distance) * this.speed;
@@ -216,7 +209,6 @@ class Rocket3D {
     this.z += this.vz;
     this.distanceTraveled += this.speed;
 
-    // Deceleration near apex
     if (this.distanceTraveled >= this.totalDistance * 0.72) {
       this.vx *= 0.94;
       this.vy *= 0.94;
@@ -245,7 +237,6 @@ class Rocket3D {
       ctx.fill();
     }
 
-    // Rocket glowing tip
     const scale = focalLength / (focalLength + this.z);
     const px = centerX + (this.x - centerX) * scale;
     const py = centerY + (this.y - centerY) * scale;
@@ -264,15 +255,16 @@ class FireworksEngine {
     this.ctx = canvas.getContext('2d');
     this.rockets = [];
     this.particlePool = [];
-    this.maxParticles = 3500;
+    this.maxParticles = 3200;
     this.flashAlpha = 0;
     this.shakeIntensity = 0;
     this.focalLength = 800;
-    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+    this.dpr = Math.min(2.5, window.devicePixelRatio || 1);
 
     this.initPool();
     this.resize();
     window.addEventListener('resize', () => this.resize());
+    window.addEventListener('orientationchange', () => setTimeout(() => this.resize(), 100));
   }
 
   initPool() {
@@ -295,17 +287,19 @@ class FireworksEngine {
   resize() {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
+    this.dpr = Math.min(2.5, window.devicePixelRatio || 1);
     this.canvas.width = this.width * this.dpr;
     this.canvas.height = this.height * this.dpr;
-    this.ctx.scale(this.dpr, this.dpr);
-    this.waterLevel = this.height * 0.86;
+    this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    this.isPortrait = this.width < this.height;
+    this.waterLevel = this.isPortrait ? this.height * 0.82 : this.height * 0.86;
   }
 
   launch(startX, startY, targetX, targetY, shellType = 'chrysanthemum', palette = 'disneyGold', size = 1) {
     const colors = ColorPalettes[palette] || ColorPalettes.disneyGold;
     const color = colors[Math.floor(Math.random() * colors.length)];
     const startZ = (Math.random() - 0.5) * 80;
-    const targetZ = (Math.random() - 0.5) * 220; // 3D depth variation
+    const targetZ = (Math.random() - 0.5) * 220;
 
     const rocket = new Rocket3D(startX, startY, startZ, targetX, targetY, targetZ, color, shellType, size);
     this.rockets.push(rocket);
@@ -321,8 +315,8 @@ class FireworksEngine {
     }
 
     if (size > 1.2) {
-      this.flashAlpha = Math.min(0.32, size * 0.16);
-      this.shakeIntensity = Math.min(5, size * 2.2);
+      this.flashAlpha = Math.min(0.30, size * 0.15);
+      this.shakeIntensity = Math.min(4.5, size * 2.0);
     }
 
     const paletteKeys = Object.keys(ColorPalettes);
@@ -358,14 +352,12 @@ class FireworksEngine {
     }
   }
 
-  // True 3D Fibonacci Sphere Burst
   createSphereBurst3D(x, y, z, palette, size, shellType) {
-    const count = Math.floor((shellType === 'peony' ? 110 : 150) * size);
-    const speedBase = (shellType === 'peony' ? 6.2 : 7.8) * size;
-    const decay = shellType === 'peony' ? 0.012 : 0.015;
+    const count = Math.floor((shellType === 'peony' ? 100 : 140) * size);
+    const speedBase = (shellType === 'peony' ? 6.0 : 7.5) * size;
+    const decay = shellType === 'peony' ? 0.013 : 0.016;
     const secondaryColor = shellType === 'peony' ? palette[Math.floor(Math.random() * palette.length)] : null;
 
-    // Fibonacci sphere distribution for perfect 3D spherical shell
     const goldenRatio = (1 + Math.sqrt(5)) / 2;
     for (let i = 0; i < count; i++) {
       const theta = 2 * Math.PI * i / goldenRatio;
@@ -383,7 +375,7 @@ class FireworksEngine {
         x, y, z,
         vx * speed, vy * speed, vz * speed,
         color,
-        2.4,
+        2.3,
         decay + Math.random() * 0.006,
         shellType,
         secondaryColor,
@@ -394,7 +386,7 @@ class FireworksEngine {
   }
 
   createWillowBurst3D(x, y, z, color, size) {
-    const count = Math.floor(200 * size);
+    const count = Math.floor(180 * size);
     for (let i = 0; i < count; i++) {
       const u = Math.random();
       const v = Math.random();
@@ -407,14 +399,14 @@ class FireworksEngine {
       const vy = r * sinPhi * Math.sin(theta);
       const vz = r * Math.cos(phi);
 
-      const speed = (0.3 + Math.random() * 0.7) * (8.2 * size);
+      const speed = (0.3 + Math.random() * 0.7) * (7.8 * size);
       const p = this.getParticle();
       p.init(
         x, y, z,
         vx * speed, vy * speed, vz * speed,
         Math.random() < 0.2 ? '#FFFFFF' : '#FFD700',
-        2.6,
-        0.006 + Math.random() * 0.0035, // Slow hanging burn
+        2.5,
+        0.0065 + Math.random() * 0.0035,
         'willow',
         '#FFA500',
         0.032,
@@ -424,15 +416,15 @@ class FireworksEngine {
   }
 
   createHeartBurst3D(x, y, z, palette, size) {
-    const count = Math.floor(110 * size);
+    const count = Math.floor(100 * size);
     for (let i = 0; i < count; i++) {
       const t = (i / count) * Math.PI * 2;
       const hx = 16 * Math.pow(Math.sin(t), 3);
       const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-      const hz = (Math.random() - 0.5) * 6;
+      const hz = (Math.random() - 0.5) * 5;
 
       const p = this.getParticle();
-      const speed = 0.32 * size;
+      const speed = 0.30 * size;
       const color = Math.random() < 0.7 ? '#FF3366' : '#FFB3C6';
       p.init(
         x, y, z,
@@ -440,8 +432,8 @@ class FireworksEngine {
         hy * speed + (Math.random() - 0.5) * 0.3,
         hz * speed,
         color,
-        2.5,
-        0.012,
+        2.4,
+        0.013,
         'normal',
         '#FFF0F5',
         0.038,
@@ -451,12 +443,11 @@ class FireworksEngine {
   }
 
   createRingBurst3D(x, y, z, palette, size) {
-    const count = Math.floor(90 * size);
-    const speed = 6.5 * size;
+    const count = Math.floor(80 * size);
+    const speed = 6.2 * size;
     const ringColor = palette[0];
     const centerColor = palette[1] || '#FFFFFF';
 
-    // 3D Tilted Ring Plane
     const tiltAngle = (Math.random() - 0.5) * 0.8;
     const cosT = Math.cos(tiltAngle);
     const sinT = Math.sin(tiltAngle);
@@ -472,7 +463,7 @@ class FireworksEngine {
         x, y, z,
         rx, ry, rz,
         ringColor,
-        2.5,
+        2.4,
         0.013,
         'normal',
         null,
@@ -481,11 +472,10 @@ class FireworksEngine {
       );
     }
 
-    // Inner 3D sparkle core
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 25; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const innerSpeed = Math.random() * 2.8 * size;
+      const innerSpeed = Math.random() * 2.6 * size;
       p.init(
         x, y, z,
         Math.cos(angle) * innerSpeed,
@@ -503,19 +493,19 @@ class FireworksEngine {
   }
 
   createStrobeBurst3D(x, y, z, palette, size) {
-    const count = Math.floor(120 * size);
+    const count = Math.floor(110 * size);
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const speed = (0.25 + Math.random() * 0.75) * 7.0 * size;
+      const speed = (0.25 + Math.random() * 0.75) * 6.5 * size;
       p.init(
         x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         (Math.random() - 0.5) * 4 * size,
         palette[Math.floor(Math.random() * palette.length)],
-        2.6,
-        0.010 + Math.random() * 0.005,
+        2.5,
+        0.011 + Math.random() * 0.005,
         'strobe',
         '#FFFFFF',
         0.036,
@@ -525,18 +515,18 @@ class FireworksEngine {
   }
 
   createCrossetteBurst3D(x, y, z, palette, size) {
-    const count = 22;
+    const count = 20;
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = (i / count) * Math.PI * 2;
-      const speed = 5.5 * size;
+      const speed = 5.2 * size;
       p.init(
         x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         (Math.random() - 0.5) * 3,
         palette[i % palette.length],
-        3.2,
+        3.0,
         0.014,
         'crossette',
         null,
@@ -550,14 +540,14 @@ class FireworksEngine {
     for (let i = 0; i < 4; i++) {
       const p = this.getParticle();
       const angle = (i * Math.PI / 2) + (Math.PI / 4);
-      const speed = 3.0;
+      const speed = 2.8;
       p.init(
         x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         (Math.random() - 0.5) * 2,
         color,
-        2.2,
+        2.0,
         0.024,
         'normal',
         '#FFFFFF',
@@ -571,19 +561,19 @@ class FireworksEngine {
   }
 
   createFairyBurst3D(x, y, z, size = 1) {
-    const count = 75;
+    const count = 65;
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const speed = (0.1 + Math.random() * 0.7) * 4.0 * size;
+      const speed = (0.1 + Math.random() * 0.7) * 3.8 * size;
       p.init(
         x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
         (Math.random() - 0.5) * 3,
         Math.random() < 0.5 ? '#FFF8DB' : '#E0AAFF',
-        2.4,
-        0.007 + Math.random() * 0.005,
+        2.3,
+        0.0075 + Math.random() * 0.005,
         'fairy',
         '#FFFFFF',
         0.018,
@@ -592,8 +582,8 @@ class FireworksEngine {
     }
   }
 
-  createGrandCrownBurst3D(x, y, z, size = 1.7) {
-    const count = Math.floor(400 * size);
+  createGrandCrownBurst3D(x, y, z, size = 1.6) {
+    const count = Math.floor(360 * size);
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const u = Math.random();
@@ -607,14 +597,14 @@ class FireworksEngine {
       const vy = r * sinPhi * Math.sin(theta);
       const vz = r * Math.cos(phi);
 
-      const speed = (0.25 + Math.random() * 0.75) * (11.0 * size);
+      const speed = (0.25 + Math.random() * 0.75) * (10.0 * size);
       const isCore = Math.random() < 0.22;
       p.init(
         x, y, z,
         vx * speed, vy * speed, vz * speed,
         isCore ? '#FFFFFF' : (Math.random() < 0.7 ? '#FFD700' : '#FFAA00'),
-        3.2,
-        0.0065 + Math.random() * 0.004,
+        3.0,
+        0.0068 + Math.random() * 0.004,
         'willow',
         '#FFF5CC',
         0.035,
@@ -624,7 +614,6 @@ class FireworksEngine {
   }
 
   update() {
-    // Update rockets
     for (let i = this.rockets.length - 1; i >= 0; i--) {
       const r = this.rockets[i];
       r.update();
@@ -634,7 +623,6 @@ class FireworksEngine {
       }
     }
 
-    // Update particles
     for (let i = 0; i < this.particlePool.length; i++) {
       const p = this.particlePool[i];
       if (!p.isDead) {
@@ -642,7 +630,6 @@ class FireworksEngine {
       }
     }
 
-    // Decay screen flash & camera shake
     if (this.flashAlpha > 0) {
       this.flashAlpha -= 0.028;
       if (this.flashAlpha < 0) this.flashAlpha = 0;
@@ -656,36 +643,30 @@ class FireworksEngine {
   render() {
     this.ctx.save();
 
-    // 3D Camera Shake
     if (this.shakeIntensity > 0) {
       const dx = (Math.random() - 0.5) * this.shakeIntensity * 2;
       const dy = (Math.random() - 0.5) * this.shakeIntensity * 2;
       this.ctx.translate(dx, dy);
     }
 
-    // Cinematic Sky Trail Fade
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = 'rgba(1, 2, 6, 0.20)';
+    this.ctx.fillStyle = 'rgba(0, 0, 3, 0.20)';
     this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // Explosive Bloom Flash
     if (this.flashAlpha > 0) {
       this.ctx.fillStyle = `rgba(255, 230, 190, ${this.flashAlpha})`;
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Additive 3D Fireworks Glow
     this.ctx.globalCompositeOperation = 'lighter';
 
     const centerX = this.width / 2;
-    const centerY = this.height * 0.45;
+    const centerY = this.isPortrait ? this.height * 0.38 : this.height * 0.45;
 
-    // Draw Rockets
     for (let i = 0; i < this.rockets.length; i++) {
       this.rockets[i].draw(this.ctx, this.focalLength, centerX, centerY);
     }
 
-    // Draw Particles with 3D projection & lake reflection
     for (let i = 0; i < this.particlePool.length; i++) {
       const p = this.particlePool[i];
       if (!p.isDead) {
