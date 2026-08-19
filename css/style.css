@@ -10,17 +10,165 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background-color: #020208;
+  background-color: #010206;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   cursor: crosshair;
 }
 
+#viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  perspective: 1000px;
+}
+
+/* Deep Space & Nebulae */
+.sky-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(ellipse at 50% 70%, #151936 0%, #0c0f24 35%, #050714 70%, #010207 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.nebula-glow {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80vw;
+  height: 45vh;
+  background: radial-gradient(ellipse at center, rgba(110, 80, 200, 0.12) 0%, rgba(40, 90, 180, 0.08) 45%, transparent 70%);
+  filter: blur(40px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 3D Distant Mountain Silhouettes */
+.mountains-bg {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  width: 100%;
+  height: 25%;
+  background-image: radial-gradient(ellipse at 20% 100%, #0a0d1e 0%, transparent 60%),
+                    radial-gradient(ellipse at 80% 100%, #080b18 0%, transparent 65%),
+                    linear-gradient(to top, #060813 0%, rgba(6, 8, 19, 0) 100%);
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* Multi-layer Starfield */
+.stars-layer-1, .stars-layer-2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.stars-layer-1 {
+  background-image: 
+    radial-gradient(1px 1px at 40px 60px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 150px 200px, #e8f4f8, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 320px 110px, #ffeaa7, rgba(0,0,0,0)),
+    radial-gradient(2px 2px at 580px 240px, #fff, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 780px 90px, #dfe6e9, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 960px 280px, #ffeaa7, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 1150px 70px, #fff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 1300px 700px;
+  opacity: 0.85;
+  animation: twinkle 6s infinite alternate ease-in-out;
+}
+
+.stars-layer-2 {
+  background-image: 
+    radial-gradient(1px 1px at 90px 130px, #a5c3ff, rgba(0,0,0,0)),
+    radial-gradient(1.2px 1.2px at 240px 50px, #ffd700, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 480px 180px, #ffffff, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 700px 320px, #e0c3fc, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 890px 150px, #a8dadc, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 1080px 210px, #ffffff, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 1100px 600px;
+  opacity: 0.65;
+  animation: twinkle 9s infinite alternate ease-in-out 2s;
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.95; }
+  100% { opacity: 0.65; }
+}
+
+/* 3D Volumetric Searchlights */
+.searchlights-rig {
+  position: absolute;
+  bottom: 11%;
+  left: 0;
+  width: 100%;
+  height: 85%;
+  pointer-events: none;
+  z-index: 4;
+  overflow: hidden;
+  opacity: 0.45;
+  transition: opacity 1.2s ease;
+}
+
+.spotlight-beam {
+  position: absolute;
+  bottom: 0;
+  width: 50px;
+  height: 1200px;
+  background: linear-gradient(to top, rgba(160, 210, 255, 0.45) 0%, rgba(255, 255, 255, 0.22) 25%, rgba(180, 220, 255, 0.08) 60%, transparent 85%);
+  transform-origin: bottom center;
+  filter: blur(14px);
+}
+
+.beam-left-1 { left: 28%; animation: sweep3D-1 11s infinite ease-in-out alternate; }
+.beam-left-2 { left: 38%; animation: sweep3D-2 8.5s infinite ease-in-out alternate; }
+.beam-right-1 { right: 38%; animation: sweep3D-3 9.5s infinite ease-in-out alternate; }
+.beam-right-2 { right: 28%; animation: sweep3D-4 12s infinite ease-in-out alternate; }
+
+@keyframes sweep3D-1 {
+  0% { transform: rotate(-48deg) scaleX(0.8); }
+  50% { transform: rotate(-10deg) scaleX(1.1); }
+  100% { transform: rotate(20deg) scaleX(0.9); }
+}
+@keyframes sweep3D-2 {
+  0% { transform: rotate(-28deg) scaleX(1); }
+  50% { transform: rotate(15deg) scaleX(0.85); }
+  100% { transform: rotate(38deg) scaleX(1.05); }
+}
+@keyframes sweep3D-3 {
+  0% { transform: rotate(35deg) scaleX(0.9); }
+  50% { transform: rotate(-12deg) scaleX(1.15); }
+  100% { transform: rotate(-35deg) scaleX(0.8); }
+}
+@keyframes sweep3D-4 {
+  0% { transform: rotate(50deg) scaleX(1.1); }
+  50% { transform: rotate(12deg) scaleX(0.9); }
+  100% { transform: rotate(-18deg) scaleX(1.0); }
+}
+
+/* Fireworks Canvas */
 #canvas-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
+  z-index: 5;
 }
 
 canvas#fireworks-canvas {
@@ -29,57 +177,15 @@ canvas#fireworks-canvas {
   height: 100%;
 }
 
-/* Background Atmosphere */
-.sky-backdrop {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(ellipse at 50% 85%, #181938 0%, #0c0d20 40%, #03040c 80%, #010105 100%);
-  z-index: 0;
-  pointer-events: none;
-}
-
-/* Starfield overlay */
-.stars-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 75%;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #ffffff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 100px 150px, #e8f4f8, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 250px 80px, #ffeaa7, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 450px 220px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 600px 120px, #dfe6e9, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 750px 300px, #ffeaa7, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 900px 50px, #fff, rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 1100px 180px, #e8f4f8, rgba(0,0,0,0));
-  background-repeat: repeat;
-  background-size: 1200px 600px;
-  opacity: 0.85;
-  animation: starTwinkle 8s infinite alternate ease-in-out;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes starTwinkle {
-  0% { opacity: 0.6; }
-  50% { opacity: 0.95; }
-  100% { opacity: 0.7; }
-}
-
-/* Castle & Scenery Layer */
+/* Detailed Disney Fairytale Castle */
 #castle-wrapper {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 48%;
-  max-height: 480px;
-  min-height: 220px;
+  height: 52%;
+  max-height: 540px;
+  min-height: 250px;
   z-index: 10;
   pointer-events: none;
   display: flex;
@@ -87,12 +193,13 @@ canvas#fireworks-canvas {
   align-items: flex-end;
 }
 
-.castle-svg-container {
+.castle-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 980px;
   height: 100%;
   position: relative;
-  filter: drop-shadow(0 0 25px rgba(110, 140, 255, 0.25));
+  filter: drop-shadow(0 -10px 35px rgba(80, 120, 255, 0.28));
+  transition: filter 0.8s ease;
 }
 
 .castle-svg {
@@ -102,95 +209,58 @@ canvas#fireworks-canvas {
   object-position: bottom center;
 }
 
-/* Water & Ground Reflection */
-.water-reflection {
+/* Ambient 3D Mist & Fog over Lake */
+.mist-layer {
+  position: absolute;
+  bottom: 8%;
+  left: 0;
+  width: 100%;
+  height: 18%;
+  background: radial-gradient(ellipse at 50% 80%, rgba(70, 110, 190, 0.15) 0%, rgba(30, 50, 100, 0.08) 50%, transparent 80%);
+  filter: blur(25px);
+  pointer-events: none;
+  z-index: 8;
+  animation: mistFloat 14s infinite ease-in-out alternate;
+}
+
+@keyframes mistFloat {
+  0% { transform: translateY(0) scaleX(1); opacity: 0.6; }
+  50% { transform: translateY(-8px) scaleX(1.06); opacity: 0.9; }
+  100% { transform: translateY(0) scaleX(1); opacity: 0.6; }
+}
+
+/* 3D Lake Reflection Plane */
+.water-reflection-plane {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
   height: 14%;
-  background: linear-gradient(to bottom, rgba(5, 8, 25, 0.8) 0%, rgba(2, 4, 15, 0.95) 100%);
-  border-top: 1px solid rgba(100, 160, 255, 0.15);
+  background: linear-gradient(to bottom, rgba(4, 7, 20, 0.75) 0%, rgba(1, 2, 8, 0.96) 100%);
+  border-top: 1px solid rgba(130, 180, 255, 0.22);
+  box-shadow: inset 0 2px 15px rgba(100, 160, 255, 0.15);
   backdrop-filter: blur(2px);
   z-index: 12;
   pointer-events: none;
   overflow: hidden;
 }
 
-.water-shimmer {
+.water-ripple-mesh {
   width: 100%;
   height: 100%;
-  opacity: 0.6;
+  opacity: 0.75;
   background: repeating-linear-gradient(
     0deg,
-    rgba(255, 215, 0, 0.03) 0px,
-    rgba(255, 215, 0, 0.08) 2px,
-    transparent 3px,
-    transparent 8px
+    rgba(255, 220, 120, 0.03) 0px,
+    rgba(255, 220, 120, 0.09) 2px,
+    transparent 4px,
+    transparent 9px
   );
-  animation: waterRipple 4s infinite linear;
+  animation: rippleDrift 3.5s infinite linear;
 }
 
-@keyframes waterRipple {
-  0% { transform: translateY(0) scaleY(1); }
-  50% { transform: translateY(2px) scaleY(1.05); }
-  100% { transform: translateY(0) scaleY(1); }
-}
-
-/* Spotlights / Searchlights */
-.searchlights {
-  position: absolute;
-  bottom: 12%;
-  left: 0;
-  width: 100%;
-  height: 80%;
-  pointer-events: none;
-  z-index: 5;
-  overflow: hidden;
-  opacity: 0.6;
-  transition: opacity 1s ease;
-}
-
-.beam {
-  position: absolute;
-  bottom: 0;
-  width: 40px;
-  height: 1000px;
-  background: linear-gradient(to top, rgba(160, 210, 255, 0.35) 0%, rgba(255, 255, 255, 0.15) 30%, transparent 80%);
-  transform-origin: bottom center;
-  filter: blur(12px);
-}
-
-.beam-1 {
-  left: 32%;
-  animation: sweepLeft 9s infinite ease-in-out alternate;
-}
-.beam-2 {
-  left: 42%;
-  animation: sweepCenterLeft 7s infinite ease-in-out alternate;
-}
-.beam-3 {
-  right: 42%;
-  animation: sweepCenterRight 8s infinite ease-in-out alternate;
-}
-.beam-4 {
-  right: 32%;
-  animation: sweepRight 10s infinite ease-in-out alternate;
-}
-
-@keyframes sweepLeft {
-  0% { transform: rotate(-42deg); }
-  100% { transform: rotate(15deg); }
-}
-@keyframes sweepCenterLeft {
-  0% { transform: rotate(-25deg); }
-  100% { transform: rotate(32deg); }
-}
-@keyframes sweepCenterRight {
-  0% { transform: rotate(28deg); }
-  100% { transform: rotate(-30deg); }
-}
-@keyframes sweepRight {
-  0% { transform: rotate(45deg); }
-  100% { transform: rotate(-12deg); }
+@keyframes rippleDrift {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(2.5px); }
+  100% { transform: translateY(0); }
 }

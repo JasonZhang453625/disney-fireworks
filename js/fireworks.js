@@ -1,15 +1,15 @@
-﻿// High Performance Canvas Fireworks Engine
+﻿// High Precision 3D Fireworks Physics Engine
 const ColorPalettes = {
-  disneyGold: ['#FFE066', '#FFD700', '#FFAA00', '#FFF8DB', '#FFFFFF'],
-  cinderella: ['#69D2E7', '#A7DBD8', '#E0E4CC', '#FA6900', '#FE4365', '#FFFFFF'],
-  frozen: ['#70D6FF', '#FF70A6', '#FF9770', '#E9FF70', '#A0C4FF', '#FFFFFF'],
-  tangled: ['#C77DFF', '#E0AAFF', '#FFD166', '#FF9E00', '#FFF3B0', '#FFFFFF'],
-  ariel: ['#06D6A0', '#118AB2', '#073B4C', '#FFD166', '#EF476F', '#FFFFFF'],
-  belle: ['#FFD166', '#F4A261', '#E76F51', '#2A9D8F', '#E9C46A', '#FFFFFF'],
-  grandRainbow: ['#FF0055', '#FF5500', '#FFCC00', '#00FF66', '#00CCFF', '#9900FF', '#FF66CC', '#FFFFFF']
+  disneyGold: ['#FFF8DB', '#FFE066', '#FFD700', '#FFAA00', '#FF8800'],
+  royalFantasy: ['#70D6FF', '#FF70A6', '#FF9770', '#E9FF70', '#C77DFF', '#FFFFFF'],
+  cinderella: ['#80E3FF', '#A0E8FF', '#E2F7FF', '#FF6584', '#FFE066', '#FFFFFF'],
+  frozenIce: ['#54E346', '#00E8FF', '#70D6FF', '#B8F2E6', '#FFFFFF'],
+  tangledLantern: ['#C77DFF', '#E0AAFF', '#FFD166', '#FF9E00', '#FFF3B0', '#FFFFFF'],
+  belleRose: ['#FF4D6D', '#FF758F', '#FFB3C1', '#FFD700', '#F9C74F', '#FFFFFF'],
+  grandRainbow: ['#FF0055', '#FF5500', '#FFCC00', '#00FF88', '#00CCFF', '#AA00FF', '#FF66CC', '#FFFFFF']
 };
 
-class Particle {
+class Particle3D {
   constructor() {
     this.reset();
   }
@@ -17,31 +17,38 @@ class Particle {
   reset() {
     this.x = 0;
     this.y = 0;
+    this.z = 0;
     this.vx = 0;
     this.vy = 0;
+    this.vz = 0;
     this.alpha = 1;
     this.decay = 0.015;
     this.color = '#fff';
-    this.size = 2;
+    this.secondaryColor = null;
+    this.size = 2.2;
     this.flicker = false;
-    this.flickerSpeed = 0.2;
-    this.gravity = 0.05;
+    this.gravity = 0.045;
     this.drag = 0.98;
     this.trail = [];
-    this.trailLength = 4;
+    this.trailLength = 5;
     this.isDead = true;
     this.type = 'normal';
     this.sparkle = false;
     this.hasCrossed = false;
     this.crossDelay = 0;
+    this.age = 0;
+    this.maxAge = 60;
   }
 
-  init(x, y, vx, vy, color, size, decay, type = 'normal', gravity = 0.06, drag = 0.975) {
+  init(x, y, z, vx, vy, vz, color, size, decay, type = 'normal', secondaryColor = null, gravity = 0.048, drag = 0.978) {
     this.x = x;
     this.y = y;
+    this.z = z;
     this.vx = vx;
     this.vy = vy;
+    this.vz = vz;
     this.color = color;
+    this.secondaryColor = secondaryColor;
     this.size = size;
     this.decay = decay;
     this.alpha = 1;
@@ -49,35 +56,44 @@ class Particle {
     this.gravity = gravity;
     this.drag = drag;
     this.trail = [];
-    this.trailLength = type === 'willow' ? 6 : (type === 'fairy' ? 8 : 3);
-    this.flicker = type === 'strobe' || type === 'willow' || Math.random() < 0.25;
-    this.sparkle = type === 'willow' || type === 'fairy';
+    this.trailLength = type === 'willow' ? 8 : (type === 'fairy' ? 10 : 4);
+    this.flicker = type === 'strobe' || type === 'willow' || Math.random() < 0.3;
+    this.sparkle = type === 'willow' || type === 'fairy' || type === 'strobe';
     this.hasCrossed = false;
-    this.crossDelay = 15 + Math.random() * 15;
+    this.crossDelay = 14 + Math.random() * 12;
+    this.age = 0;
+    this.maxAge = Math.floor(1 / decay);
     this.isDead = false;
   }
 
   update(fireworksEngine) {
     if (this.isDead) return;
 
-    this.trail.push({ x: this.x, y: this.y, alpha: this.alpha });
+    this.age++;
+
+    // Record trail in 3D space
+    this.trail.push({ x: this.x, y: this.y, z: this.z, alpha: this.alpha });
     if (this.trail.length > this.trailLength) {
       this.trail.shift();
     }
 
+    // Apply 3D physics: aerodynamic drag & gravity
     this.vx *= this.drag;
+    this.vz *= this.drag;
     this.vy = (this.vy * this.drag) + this.gravity;
+
     this.x += this.vx;
     this.y += this.vy;
+    this.z += this.vz;
 
     this.alpha -= this.decay;
 
-    // Crossette split effect
+    // Crossette fracture
     if (this.type === 'crossette' && !this.hasCrossed) {
       this.crossDelay--;
       if (this.crossDelay <= 0) {
         this.hasCrossed = true;
-        fireworksEngine.splitCrossette(this.x, this.y, this.color);
+        fireworksEngine.splitCrossette3D(this.x, this.y, this.z, this.color);
       }
     }
 
@@ -86,108 +102,156 @@ class Particle {
     }
   }
 
-  draw(ctx) {
+  draw(ctx, focalLength, centerX, centerY, waterLevel) {
     if (this.isDead) return;
 
+    // 3D Perspective Projection
+    const scale = focalLength / (focalLength + this.z);
+    if (scale <= 0) return;
+
+    const projX = centerX + (this.x - centerX) * scale;
+    const projY = centerY + (this.y - centerY) * scale;
+    const projSize = Math.max(0.6, this.size * scale);
+
     let currentAlpha = this.alpha;
-    if (this.flicker && Math.random() < 0.4) {
-      currentAlpha *= 0.3;
+    if (this.flicker && Math.random() < 0.35) {
+      currentAlpha *= 0.25;
     }
 
-    // Draw motion trail
+    // Color transition for ghost peonies
+    let renderColor = this.color;
+    if (this.secondaryColor && this.age > this.maxAge * 0.4) {
+      renderColor = this.secondaryColor;
+    }
+
+    // 1. Draw 3D Motion Trail
     if (this.trail.length > 1) {
       ctx.beginPath();
-      ctx.moveTo(this.trail[0].x, this.trail[0].y);
+      const first = this.trail[0];
+      const s0 = focalLength / (focalLength + first.z);
+      ctx.moveTo(centerX + (first.x - centerX) * s0, centerY + (first.y - centerY) * s0);
+
       for (let i = 1; i < this.trail.length; i++) {
-        ctx.lineTo(this.trail[i].x, this.trail[i].y);
+        const pt = this.trail[i];
+        const s = focalLength / (focalLength + pt.z);
+        ctx.lineTo(centerX + (pt.x - centerX) * s, centerY + (pt.y - centerY) * s);
       }
-      ctx.strokeStyle = this.color;
-      ctx.globalAlpha = currentAlpha * 0.5;
-      ctx.lineWidth = this.size * 0.75;
+
+      ctx.strokeStyle = renderColor;
+      ctx.globalAlpha = currentAlpha * 0.45 * Math.min(1, scale);
+      ctx.lineWidth = projSize * 0.8;
       ctx.stroke();
     }
 
-    // Draw particle head
+    // 2. Draw Particle Head & Glowing Core
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
+    ctx.arc(projX, projY, projSize, 0, Math.PI * 2);
+    ctx.fillStyle = renderColor;
     ctx.globalAlpha = currentAlpha;
     ctx.fill();
 
-    // Extra fairy sparkle halo
-    if (this.sparkle && Math.random() < 0.3) {
-      ctx.beginPath();
-      ctx.arc(this.x + (Math.random() - 0.5) * 4, this.y + (Math.random() - 0.5) * 4, this.size * 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.globalAlpha = currentAlpha * 0.8;
-      ctx.fill();
+    // High intensity core
+    ctx.beginPath();
+    ctx.arc(projX, projY, projSize * 0.45, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.globalAlpha = currentAlpha * 0.85;
+    ctx.fill();
+
+    // 3. Real-time Lake Reflection (if particle above water plane)
+    if (projY < waterLevel) {
+      const distFromWater = waterLevel - projY;
+      const refY = waterLevel + distFromWater * 0.45; // Perspective compressed reflection
+      const refAlpha = currentAlpha * 0.18 * Math.min(1, scale);
+
+      if (refY < ctx.canvas.height && refAlpha > 0.01) {
+        // Water ripple horizontal displacement
+        const rippleX = projX + Math.sin(refY * 0.1 + Date.now() * 0.005) * 3;
+        ctx.beginPath();
+        ctx.ellipse(rippleX, refY, projSize * 1.6, projSize * 0.4, 0, 0, Math.PI * 2);
+        ctx.fillStyle = renderColor;
+        ctx.globalAlpha = refAlpha;
+        ctx.fill();
+      }
     }
   }
 }
 
-class Rocket {
-  constructor(startX, startY, targetX, targetY, color, shellType, size = 1) {
+class Rocket3D {
+  constructor(startX, startY, startZ, targetX, targetY, targetZ, color, shellType, size = 1) {
     this.x = startX;
     this.y = startY;
-    this.startX = startX;
-    this.startY = startY;
+    this.z = startZ;
     this.targetX = targetX;
     this.targetY = targetY;
+    this.targetZ = targetZ;
     this.color = color;
     this.shellType = shellType;
     this.size = size;
 
-    const angle = Math.atan2(targetY - startY, targetX - startX);
-    const distance = Math.hypot(targetX - startX, targetY - startY);
-    this.speed = Math.min(18, Math.max(12, distance / 32));
-    this.vx = Math.cos(angle) * this.speed;
-    this.vy = Math.sin(angle) * this.speed;
+    const dx = targetX - startX;
+    const dy = targetY - startY;
+    const dz = targetZ - startZ;
+    const distance = Math.hypot(dx, dy, dz);
+    this.speed = Math.min(22, Math.max(14, distance / 30));
+
+    this.vx = (dx / distance) * this.speed;
+    this.vy = (dy / distance) * this.speed;
+    this.vz = (dz / distance) * this.speed;
 
     this.trail = [];
-    this.trailLength = 8;
+    this.trailLength = 9;
     this.isDead = false;
     this.distanceTraveled = 0;
     this.totalDistance = distance;
   }
 
   update() {
-    this.trail.push({ x: this.x, y: this.y });
+    this.trail.push({ x: this.x, y: this.y, z: this.z });
     if (this.trail.length > this.trailLength) {
       this.trail.shift();
     }
 
     this.x += this.vx;
     this.y += this.vy;
+    this.z += this.vz;
     this.distanceTraveled += this.speed;
 
-    // Gradual deceleration near peak
-    if (this.distanceTraveled >= this.totalDistance * 0.75) {
-      this.vx *= 0.95;
-      this.vy *= 0.95;
+    // Deceleration near apex
+    if (this.distanceTraveled >= this.totalDistance * 0.72) {
+      this.vx *= 0.94;
+      this.vy *= 0.94;
+      this.vz *= 0.94;
     }
 
-    if (this.distanceTraveled >= this.totalDistance || this.y <= this.targetY || (this.vy >= -0.5 && this.y < this.startY - 50)) {
+    if (this.distanceTraveled >= this.totalDistance || this.y <= this.targetY) {
       this.isDead = true;
     }
   }
 
-  draw(ctx) {
+  draw(ctx, focalLength, centerX, centerY) {
     if (this.isDead) return;
 
-    // Draw fiery comet trail
     for (let i = 0; i < this.trail.length; i++) {
-      const point = this.trail[i];
+      const pt = this.trail[i];
       const progress = i / this.trail.length;
+      const scale = focalLength / (focalLength + pt.z);
+      const px = centerX + (pt.x - centerX) * scale;
+      const py = centerY + (pt.y - centerY) * scale;
+
       ctx.beginPath();
-      ctx.arc(point.x, point.y, 1.2 + progress * 2, 0, Math.PI * 2);
-      ctx.fillStyle = progress > 0.6 ? '#FFFFFF' : '#FFA500';
-      ctx.globalAlpha = progress * 0.8;
+      ctx.arc(px, py, (1.2 + progress * 2.2) * scale, 0, Math.PI * 2);
+      ctx.fillStyle = progress > 0.6 ? '#FFFFFF' : '#FFAE19';
+      ctx.globalAlpha = progress * 0.85;
       ctx.fill();
     }
 
-    // Rocket tip
+    // Rocket glowing tip
+    const scale = focalLength / (focalLength + this.z);
+    const px = centerX + (this.x - centerX) * scale;
+    const py = centerY + (this.y - centerY) * scale;
+
     ctx.beginPath();
-    ctx.arc(this.x, this.y, 2.5, 0, Math.PI * 2);
+    ctx.arc(px, py, 2.8 * scale, 0, Math.PI * 2);
     ctx.fillStyle = '#FFFFFF';
     ctx.globalAlpha = 1;
     ctx.fill();
@@ -200,9 +264,12 @@ class FireworksEngine {
     this.ctx = canvas.getContext('2d');
     this.rockets = [];
     this.particlePool = [];
-    this.maxParticles = 3000;
+    this.maxParticles = 3500;
     this.flashAlpha = 0;
     this.shakeIntensity = 0;
+    this.focalLength = 800;
+    this.dpr = Math.min(2, window.devicePixelRatio || 1);
+
     this.initPool();
     this.resize();
     window.addEventListener('resize', () => this.resize());
@@ -210,7 +277,7 @@ class FireworksEngine {
 
   initPool() {
     for (let i = 0; i < this.maxParticles; i++) {
-      this.particlePool.push(new Particle());
+      this.particlePool.push(new Particle3D());
     }
   }
 
@@ -220,8 +287,7 @@ class FireworksEngine {
         return this.particlePool[i];
       }
     }
-    // Expand if full
-    const newP = new Particle();
+    const newP = new Particle3D();
     this.particlePool.push(newP);
     return newP;
   }
@@ -229,29 +295,34 @@ class FireworksEngine {
   resize() {
     this.width = window.innerWidth;
     this.height = window.innerHeight;
-    this.canvas.width = this.width;
-    this.canvas.height = this.height;
+    this.canvas.width = this.width * this.dpr;
+    this.canvas.height = this.height * this.dpr;
+    this.ctx.scale(this.dpr, this.dpr);
+    this.waterLevel = this.height * 0.86;
   }
 
   launch(startX, startY, targetX, targetY, shellType = 'chrysanthemum', palette = 'disneyGold', size = 1) {
     const colors = ColorPalettes[palette] || ColorPalettes.disneyGold;
     const color = colors[Math.floor(Math.random() * colors.length)];
-    const rocket = new Rocket(startX, startY, targetX, targetY, color, shellType, size);
+    const startZ = (Math.random() - 0.5) * 80;
+    const targetZ = (Math.random() - 0.5) * 220; // 3D depth variation
+
+    const rocket = new Rocket3D(startX, startY, startZ, targetX, targetY, targetZ, color, shellType, size);
     this.rockets.push(rocket);
 
     if (window.soundEngine) {
-      window.soundEngine.playLaunch(0.8 + Math.random() * 0.4, 0.4 + size * 0.3);
+      window.soundEngine.playLaunch(0.85 + Math.random() * 0.35, 0.45 + size * 0.25);
     }
   }
 
-  explode(x, y, shellType, baseColor, size = 1) {
+  explode(x, y, z, shellType, baseColor, size = 1) {
     if (window.soundEngine) {
       window.soundEngine.playExplosion(size, shellType);
     }
 
-    if (size > 1.3) {
-      this.flashAlpha = Math.min(0.35, size * 0.18);
-      this.shakeIntensity = Math.min(6, size * 2.5);
+    if (size > 1.2) {
+      this.flashAlpha = Math.min(0.32, size * 0.16);
+      this.shakeIntensity = Math.min(5, size * 2.2);
     }
 
     const paletteKeys = Object.keys(ColorPalettes);
@@ -259,200 +330,238 @@ class FireworksEngine {
 
     switch (shellType) {
       case 'heart':
-        this.createHeartBurst(x, y, randomPalette, size);
+        this.createHeartBurst3D(x, y, z, randomPalette, size);
         break;
       case 'ring':
-        this.createRingBurst(x, y, randomPalette, size);
+        this.createRingBurst3D(x, y, z, randomPalette, size);
         break;
       case 'willow':
-        this.createWillowBurst(x, y, '#FFD700', size);
+        this.createWillowBurst3D(x, y, z, '#FFD700', size);
         break;
       case 'crossette':
-        this.createCrossetteBurst(x, y, randomPalette, size);
+        this.createCrossetteBurst3D(x, y, z, randomPalette, size);
         break;
       case 'strobe':
-        this.createStrobeBurst(x, y, ['#FFFFFF', '#FFE066', '#A0C4FF'], size);
+        this.createStrobeBurst3D(x, y, z, ['#FFFFFF', '#FFE066', '#A0C4FF'], size);
         break;
       case 'grandFinale':
-        this.createGrandCrownBurst(x, y, size);
+        this.createGrandCrownBurst3D(x, y, z, size);
         break;
       case 'fairy':
-        this.createFairyBurst(x, y, size);
+        this.createFairyBurst3D(x, y, z, size);
         break;
       case 'peony':
       case 'chrysanthemum':
       default:
-        this.createSphereBurst(x, y, randomPalette, size, shellType);
+        this.createSphereBurst3D(x, y, z, randomPalette, size, shellType);
         break;
     }
   }
 
-  createSphereBurst(x, y, palette, size, shellType) {
-    const count = Math.floor((shellType === 'peony' ? 90 : 130) * size);
-    const speedBase = (shellType === 'peony' ? 5.5 : 7.0) * size;
-    const decay = shellType === 'peony' ? 0.012 : 0.016;
+  // True 3D Fibonacci Sphere Burst
+  createSphereBurst3D(x, y, z, palette, size, shellType) {
+    const count = Math.floor((shellType === 'peony' ? 110 : 150) * size);
+    const speedBase = (shellType === 'peony' ? 6.2 : 7.8) * size;
+    const decay = shellType === 'peony' ? 0.012 : 0.015;
+    const secondaryColor = shellType === 'peony' ? palette[Math.floor(Math.random() * palette.length)] : null;
 
+    // Fibonacci sphere distribution for perfect 3D spherical shell
+    const goldenRatio = (1 + Math.sqrt(5)) / 2;
     for (let i = 0; i < count; i++) {
-      const p = this.getParticle();
-      const angle = Math.random() * Math.PI * 2;
-      const speed = (0.2 + Math.random() * 0.8) * speedBase;
-      const color = palette[Math.floor(Math.random() * palette.length)];
-      p.init(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        color,
-        2.2,
-        decay + Math.random() * 0.008,
-        shellType === 'peony' ? 'peony' : 'normal',
-        0.05,
-        0.965
-      );
-    }
-  }
+      const theta = 2 * Math.PI * i / goldenRatio;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / count);
 
-  createWillowBurst(x, y, color, size) {
-    const count = Math.floor(180 * size);
-    for (let i = 0; i < count; i++) {
-      const p = this.getParticle();
-      const angle = Math.random() * Math.PI * 2;
-      const speed = (0.3 + Math.random() * 0.7) * (7.5 * size);
-      p.init(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
-        Math.random() < 0.25 ? '#FFFFFF' : '#FFD700',
-        2.5,
-        0.006 + Math.random() * 0.004, // Very slow decay for golden rain
-        'willow',
-        0.035,
-        0.978
-      );
-    }
-  }
+      const vx = Math.cos(theta) * Math.sin(phi);
+      const vy = Math.sin(theta) * Math.sin(phi);
+      const vz = Math.cos(phi);
 
-  createHeartBurst(x, y, palette, size) {
-    const count = Math.floor(100 * size);
-    const scale = 0.28 * size;
-    for (let i = 0; i < count; i++) {
-      const t = (i / count) * Math.PI * 2;
-      // Parametric heart formula
-      const hx = 16 * Math.pow(Math.sin(t), 3);
-      const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+      const speed = (0.75 + Math.random() * 0.25) * speedBase;
+      const color = palette[i % palette.length];
 
       const p = this.getParticle();
-      const speed = 0.28 * size;
-      const color = Math.random() < 0.7 ? '#FF3366' : '#FF99B8';
       p.init(
-        x, y,
-        hx * speed + (Math.random() - 0.5) * 0.4,
-        hy * speed + (Math.random() - 0.5) * 0.4,
+        x, y, z,
+        vx * speed, vy * speed, vz * speed,
         color,
         2.4,
-        0.013,
-        'normal',
-        0.04,
+        decay + Math.random() * 0.006,
+        shellType,
+        secondaryColor,
+        0.042,
+        0.975
+      );
+    }
+  }
+
+  createWillowBurst3D(x, y, z, color, size) {
+    const count = Math.floor(200 * size);
+    for (let i = 0; i < count; i++) {
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = Math.cbrt(Math.random());
+      const sinPhi = Math.sin(phi);
+
+      const vx = r * sinPhi * Math.cos(theta);
+      const vy = r * sinPhi * Math.sin(theta);
+      const vz = r * Math.cos(phi);
+
+      const speed = (0.3 + Math.random() * 0.7) * (8.2 * size);
+      const p = this.getParticle();
+      p.init(
+        x, y, z,
+        vx * speed, vy * speed, vz * speed,
+        Math.random() < 0.2 ? '#FFFFFF' : '#FFD700',
+        2.6,
+        0.006 + Math.random() * 0.0035, // Slow hanging burn
+        'willow',
+        '#FFA500',
+        0.032,
         0.98
       );
     }
   }
 
-  createRingBurst(x, y, palette, size) {
-    const count = Math.floor(80 * size);
-    const speed = 6.0 * size;
+  createHeartBurst3D(x, y, z, palette, size) {
+    const count = Math.floor(110 * size);
+    for (let i = 0; i < count; i++) {
+      const t = (i / count) * Math.PI * 2;
+      const hx = 16 * Math.pow(Math.sin(t), 3);
+      const hy = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+      const hz = (Math.random() - 0.5) * 6;
+
+      const p = this.getParticle();
+      const speed = 0.32 * size;
+      const color = Math.random() < 0.7 ? '#FF3366' : '#FFB3C6';
+      p.init(
+        x, y, z,
+        hx * speed + (Math.random() - 0.5) * 0.3,
+        hy * speed + (Math.random() - 0.5) * 0.3,
+        hz * speed,
+        color,
+        2.5,
+        0.012,
+        'normal',
+        '#FFF0F5',
+        0.038,
+        0.98
+      );
+    }
+  }
+
+  createRingBurst3D(x, y, z, palette, size) {
+    const count = Math.floor(90 * size);
+    const speed = 6.5 * size;
     const ringColor = palette[0];
     const centerColor = palette[1] || '#FFFFFF';
 
-    // Ring perimeter
+    // 3D Tilted Ring Plane
+    const tiltAngle = (Math.random() - 0.5) * 0.8;
+    const cosT = Math.cos(tiltAngle);
+    const sinT = Math.sin(tiltAngle);
+
     for (let i = 0; i < count; i++) {
-      const p = this.getParticle();
       const angle = (i / count) * Math.PI * 2;
+      const rx = Math.cos(angle) * speed;
+      const ry = Math.sin(angle) * speed * cosT;
+      const rz = Math.sin(angle) * speed * sinT;
+
+      const p = this.getParticle();
       p.init(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
+        x, y, z,
+        rx, ry, rz,
         ringColor,
-        2.4,
-        0.014,
+        2.5,
+        0.013,
         'normal',
-        0.03,
+        null,
+        0.028,
         0.975
       );
     }
 
-    // Inner sparkle
-    for (let i = 0; i < 25; i++) {
+    // Inner 3D sparkle core
+    for (let i = 0; i < 30; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const innerSpeed = Math.random() * 2.5 * size;
+      const innerSpeed = Math.random() * 2.8 * size;
       p.init(
-        x, y,
+        x, y, z,
         Math.cos(angle) * innerSpeed,
         Math.sin(angle) * innerSpeed,
+        (Math.random() - 0.5) * 2 * size,
         centerColor,
         2.0,
-        0.018,
+        0.016,
         'strobe',
-        0.04,
+        null,
+        0.035,
         0.96
       );
     }
   }
 
-  createStrobeBurst(x, y, palette, size) {
-    const count = Math.floor(100 * size);
+  createStrobeBurst3D(x, y, z, palette, size) {
+    const count = Math.floor(120 * size);
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const speed = (0.2 + Math.random() * 0.8) * 6.5 * size;
+      const speed = (0.25 + Math.random() * 0.75) * 7.0 * size;
       p.init(
-        x, y,
+        x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
+        (Math.random() - 0.5) * 4 * size,
         palette[Math.floor(Math.random() * palette.length)],
-        2.5,
-        0.011 + Math.random() * 0.005,
+        2.6,
+        0.010 + Math.random() * 0.005,
         'strobe',
-        0.04,
-        0.97
+        '#FFFFFF',
+        0.036,
+        0.972
       );
     }
   }
 
-  createCrossetteBurst(x, y, palette, size) {
-    const count = 18;
+  createCrossetteBurst3D(x, y, z, palette, size) {
+    const count = 22;
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = (i / count) * Math.PI * 2;
-      const speed = 5.0 * size;
+      const speed = 5.5 * size;
       p.init(
-        x, y,
+        x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
+        (Math.random() - 0.5) * 3,
         palette[i % palette.length],
-        3.0,
-        0.015,
+        3.2,
+        0.014,
         'crossette',
-        0.04,
+        null,
+        0.038,
         0.98
       );
     }
   }
 
-  splitCrossette(x, y, color) {
+  splitCrossette3D(x, y, z, color) {
     for (let i = 0; i < 4; i++) {
       const p = this.getParticle();
       const angle = (i * Math.PI / 2) + (Math.PI / 4);
-      const speed = 2.5;
+      const speed = 3.0;
       p.init(
-        x, y,
+        x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
+        (Math.random() - 0.5) * 2,
         color,
-        2.0,
-        0.025,
+        2.2,
+        0.024,
         'normal',
-        0.04,
+        '#FFFFFF',
+        0.038,
         0.97
       );
     }
@@ -461,43 +570,55 @@ class FireworksEngine {
     }
   }
 
-  createFairyBurst(x, y, size = 1) {
-    const count = 60;
+  createFairyBurst3D(x, y, z, size = 1) {
+    const count = 75;
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
       const angle = Math.random() * Math.PI * 2;
-      const speed = (0.1 + Math.random() * 0.6) * 3.5 * size;
+      const speed = (0.1 + Math.random() * 0.7) * 4.0 * size;
       p.init(
-        x, y,
+        x, y, z,
         Math.cos(angle) * speed,
         Math.sin(angle) * speed,
-        Math.random() < 0.5 ? '#FFF3B0' : '#E0AAFF',
-        2.2,
-        0.008 + Math.random() * 0.006,
+        (Math.random() - 0.5) * 3,
+        Math.random() < 0.5 ? '#FFF8DB' : '#E0AAFF',
+        2.4,
+        0.007 + Math.random() * 0.005,
         'fairy',
-        0.02,
-        0.98
+        '#FFFFFF',
+        0.018,
+        0.982
       );
     }
   }
 
-  createGrandCrownBurst(x, y, size = 1.6) {
-    const count = Math.floor(350 * size);
+  createGrandCrownBurst3D(x, y, z, size = 1.7) {
+    const count = Math.floor(400 * size);
     for (let i = 0; i < count; i++) {
       const p = this.getParticle();
-      const angle = Math.random() * Math.PI * 2;
-      const speed = (0.2 + Math.random() * 0.8) * 10.0 * size;
-      const isCore = Math.random() < 0.2;
+      const u = Math.random();
+      const v = Math.random();
+      const theta = u * 2.0 * Math.PI;
+      const phi = Math.acos(2.0 * v - 1.0);
+      const r = Math.cbrt(Math.random());
+      const sinPhi = Math.sin(phi);
+
+      const vx = r * sinPhi * Math.cos(theta);
+      const vy = r * sinPhi * Math.sin(theta);
+      const vz = r * Math.cos(phi);
+
+      const speed = (0.25 + Math.random() * 0.75) * (11.0 * size);
+      const isCore = Math.random() < 0.22;
       p.init(
-        x, y,
-        Math.cos(angle) * speed,
-        Math.sin(angle) * speed,
+        x, y, z,
+        vx * speed, vy * speed, vz * speed,
         isCore ? '#FFFFFF' : (Math.random() < 0.7 ? '#FFD700' : '#FFAA00'),
-        3.0,
-        0.007 + Math.random() * 0.005,
+        3.2,
+        0.0065 + Math.random() * 0.004,
         'willow',
-        0.038,
-        0.978
+        '#FFF5CC',
+        0.035,
+        0.98
       );
     }
   }
@@ -508,12 +629,12 @@ class FireworksEngine {
       const r = this.rockets[i];
       r.update();
       if (r.isDead) {
-        this.explode(r.x, r.y, r.shellType, r.color, r.size);
+        this.explode(r.x, r.y, r.z, r.shellType, r.color, r.size);
         this.rockets.splice(i, 1);
       }
     }
 
-    // Update active particles
+    // Update particles
     for (let i = 0; i < this.particlePool.length; i++) {
       const p = this.particlePool[i];
       if (!p.isDead) {
@@ -521,51 +642,54 @@ class FireworksEngine {
       }
     }
 
-    // Decay flash and shake
+    // Decay screen flash & camera shake
     if (this.flashAlpha > 0) {
-      this.flashAlpha -= 0.03;
+      this.flashAlpha -= 0.028;
       if (this.flashAlpha < 0) this.flashAlpha = 0;
     }
     if (this.shakeIntensity > 0) {
-      this.shakeIntensity *= 0.85;
-      if (this.shakeIntensity < 0.1) this.shakeIntensity = 0;
+      this.shakeIntensity *= 0.84;
+      if (this.shakeIntensity < 0.08) this.shakeIntensity = 0;
     }
   }
 
   render() {
     this.ctx.save();
 
-    // Camera shake
+    // 3D Camera Shake
     if (this.shakeIntensity > 0) {
       const dx = (Math.random() - 0.5) * this.shakeIntensity * 2;
       const dy = (Math.random() - 0.5) * this.shakeIntensity * 2;
       this.ctx.translate(dx, dy);
     }
 
-    // Sky trail fade
+    // Cinematic Sky Trail Fade
     this.ctx.globalCompositeOperation = 'source-over';
-    this.ctx.fillStyle = 'rgba(2, 2, 8, 0.22)';
+    this.ctx.fillStyle = 'rgba(1, 2, 6, 0.20)';
     this.ctx.fillRect(0, 0, this.width, this.height);
 
-    // Screen Flash
+    // Explosive Bloom Flash
     if (this.flashAlpha > 0) {
-      this.ctx.fillStyle = `rgba(255, 235, 200, ${this.flashAlpha})`;
+      this.ctx.fillStyle = `rgba(255, 230, 190, ${this.flashAlpha})`;
       this.ctx.fillRect(0, 0, this.width, this.height);
     }
 
-    // Additive glow rendering for fireworks
+    // Additive 3D Fireworks Glow
     this.ctx.globalCompositeOperation = 'lighter';
+
+    const centerX = this.width / 2;
+    const centerY = this.height * 0.45;
 
     // Draw Rockets
     for (let i = 0; i < this.rockets.length; i++) {
-      this.rockets[i].draw(this.ctx);
+      this.rockets[i].draw(this.ctx, this.focalLength, centerX, centerY);
     }
 
-    // Draw Particles
+    // Draw Particles with 3D projection & lake reflection
     for (let i = 0; i < this.particlePool.length; i++) {
       const p = this.particlePool[i];
       if (!p.isDead) {
-        p.draw(this.ctx);
+        p.draw(this.ctx, this.focalLength, centerX, centerY, this.waterLevel);
       }
     }
 
