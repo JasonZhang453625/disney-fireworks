@@ -1,0 +1,328 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Disney Magic Kingdom Fireworks · 梦幻城堡烟花盛典</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Sky & Starfield Background -->
+  <div class="sky-backdrop"></div>
+  <div class="stars-overlay"></div>
+
+  <!-- Searchlights / Spotlights -->
+  <div class="searchlights" id="searchlights">
+    <div class="beam beam-1"></div>
+    <div class="beam beam-2"></div>
+    <div class="beam beam-3"></div>
+    <div class="beam beam-4"></div>
+  </div>
+
+  <!-- Main Canvas for Fireworks -->
+  <div id="canvas-container">
+    <canvas id="fireworks-canvas"></canvas>
+  </div>
+
+  <!-- Disney Fairytale Castle Silhouette Layer -->
+  <div id="castle-wrapper">
+    <div class="castle-svg-container">
+      <svg class="castle-svg" viewBox="0 0 1000 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="castleGrad" x1="500" y1="50" x2="500" y2="600" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#0e132b" />
+            <stop offset="45%" stop-color="#080c1d" />
+            <stop offset="100%" stop-color="#03050c" />
+          </linearGradient>
+          <linearGradient id="roofGrad" x1="500" y1="0" x2="500" y2="400" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#1e2c56" />
+            <stop offset="100%" stop-color="#0c1224" />
+          </linearGradient>
+          <filter id="windowGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+
+        <!-- Base Walls & Fortress -->
+        <rect x="220" y="420" width="560" height="180" fill="url(#castleGrad)" />
+        <rect x="300" y="340" width="400" height="100" fill="url(#castleGrad)" />
+        <rect x="380" y="240" width="240" height="110" fill="url(#castleGrad)" />
+
+        <!-- Battlements / Crenellations -->
+        <path d="M 220 420 h 560 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 h -20 v -15 h -15 v 15 Z" fill="url(#castleGrad)" />
+
+        <!-- Outer Towers (Far Left & Far Right) -->
+        <rect x="190" y="380" width="50" height="220" fill="url(#castleGrad)" />
+        <polygon points="180,380 215,280 250,380" fill="url(#roofGrad)" />
+        <line x1="215" y1="280" x2="215" y2="255" stroke="#FFD700" stroke-width="2" />
+        <polygon points="215,255 228,262 215,270" fill="#FFD700" />
+
+        <rect x="760" y="380" width="50" height="220" fill="url(#castleGrad)" />
+        <polygon points="750,380 785,280 820,380" fill="url(#roofGrad)" />
+        <line x1="785" y1="280" x2="785" y2="255" stroke="#FFD700" stroke-width="2" />
+        <polygon points="785,255 798,262 785,270" fill="#FFD700" />
+
+        <!-- Mid Towers -->
+        <rect x="270" y="290" width="55" height="180" fill="url(#castleGrad)" />
+        <polygon points="260,290 297,180 335,290" fill="url(#roofGrad)" />
+        <line x1="297" y1="180" x2="297" y2="155" stroke="#FFD700" stroke-width="2" />
+        <polygon points="297,155 310,162 297,170" fill="#FFD700" />
+
+        <rect x="675" y="290" width="55" height="180" fill="url(#castleGrad)" />
+        <polygon points="665,290 702,180 740,290" fill="url(#roofGrad)" />
+        <line x1="702" y1="180" x2="702" y2="155" stroke="#FFD700" stroke-width="2" />
+        <polygon points="702,155 715,162 702,170" fill="#FFD700" />
+
+        <!-- Inner Flanking Spires -->
+        <rect x="355" y="200" width="45" height="160" fill="url(#castleGrad)" />
+        <polygon points="348,200 377,100 407,200" fill="url(#roofGrad)" />
+
+        <rect x="600" y="200" width="45" height="160" fill="url(#castleGrad)" />
+        <polygon points="593,200 622,100 652,200" fill="url(#roofGrad)" />
+
+        <!-- Grand Central Spire & Clock Tower -->
+        <rect x="440" y="140" width="120" height="220" fill="url(#castleGrad)" />
+        <polygon points="420,140 500,20 580,140" fill="url(#roofGrad)" />
+        
+        <!-- Central Golden Spire Tip & Star -->
+        <line x1="500" y1="20" x2="500" y2="-15" stroke="#FFD700" stroke-width="3" />
+        <polygon points="500,-15 518,-5 500,5" fill="#FFD700" />
+        <circle cx="500" cy="-15" r="4" fill="#FFFFFF" filter="url(#windowGlow)" />
+
+        <!-- Main Castle Gate Arches -->
+        <path d="M 455 600 v -90 a 45 45 0 0 1 90 0 v 90 Z" fill="#04060e" stroke="rgba(255,215,0,0.4)" stroke-width="2" />
+        <path d="M 470 600 v -70 a 30 30 0 0 1 60 0 v 70 Z" fill="#ffd700" opacity="0.15" filter="url(#windowGlow)" />
+
+        <!-- Illuminated Rose Window (Stained Glass Clock) -->
+        <circle cx="500" cy="205" r="24" fill="#182b52" stroke="#FFD700" stroke-width="2" />
+        <circle cx="500" cy="205" r="18" fill="#ffd700" opacity="0.85" filter="url(#windowGlow)" />
+        <circle cx="500" cy="205" r="8" fill="#FFFFFF" />
+
+        <!-- Glowing Castle Windows -->
+        <!-- Center Upper Windows -->
+        <path d="M 480 270 v -20 a 10 10 0 0 1 20 0 v 20 Z" fill="#FFEAA7" filter="url(#windowGlow)" opacity="0.9" />
+        <path d="M 510 270 v -20 a 10 10 0 0 1 20 0 v 20 Z" fill="#FFEAA7" filter="url(#windowGlow)" opacity="0.9" />
+        
+        <!-- Left Spire Windows -->
+        <path d="M 290 350 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#windowGlow)" opacity="0.85" />
+        <path d="M 370 260 v -16 a 7 7 0 0 1 14 0 v 16 Z" fill="#FFD700" filter="url(#windowGlow)" opacity="0.85" />
+
+        <!-- Right Spire Windows -->
+        <path d="M 695 350 v -18 a 8 8 0 0 1 16 0 v 18 Z" fill="#FFD700" filter="url(#windowGlow)" opacity="0.85" />
+        <path d="M 615 260 v -16 a 7 7 0 0 1 14 0 v 16 Z" fill="#FFD700" filter="url(#windowGlow)" opacity="0.85" />
+
+        <!-- Outer Windows -->
+        <path d="M 207 430 v -15 a 6 6 0 0 1 12 0 v 15 Z" fill="#FFEAA7" filter="url(#windowGlow)" opacity="0.8" />
+        <path d="M 777 430 v -15 a 6 6 0 0 1 12 0 v 15 Z" fill="#FFEAA7" filter="url(#windowGlow)" opacity="0.8" />
+
+        <!-- Perimeter Fairy Lights along rooflines -->
+        <g stroke="#FFF" stroke-width="1.5" opacity="0.75" filter="url(#windowGlow)">
+          <circle cx="348" cy="200" r="1.5" fill="#FFF" />
+          <circle cx="362" cy="150" r="1.5" fill="#FFD700" />
+          <circle cx="377" cy="100" r="2.0" fill="#FFF" />
+          <circle cx="392" cy="150" r="1.5" fill="#FFD700" />
+          <circle cx="407" cy="200" r="1.5" fill="#FFF" />
+
+          <circle cx="593" cy="200" r="1.5" fill="#FFF" />
+          <circle cx="608" cy="150" r="1.5" fill="#FFD700" />
+          <circle cx="622" cy="100" r="2.0" fill="#FFF" />
+          <circle cx="637" cy="150" r="1.5" fill="#FFD700" />
+          <circle cx="652" cy="200" r="1.5" fill="#FFF" />
+
+          <circle cx="420" cy="140" r="1.5" fill="#FFF" />
+          <circle cx="460" cy="80" r="1.5" fill="#FFD700" />
+          <circle cx="500" cy="20" r="2.5" fill="#FFF" />
+          <circle cx="540" cy="80" r="1.5" fill="#FFD700" />
+          <circle cx="580" cy="140" r="1.5" fill="#FFF" />
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Moat Water & Shimmering Reflection -->
+  <div class="water-reflection">
+    <div class="water-shimmer"></div>
+  </div>
+
+  <!-- UI Overlay -->
+  <div class="ui-overlay">
+    <!-- Top Header Bar -->
+    <div class="top-bar">
+      <div class="brand-title">
+        <span class="sparkle-icon">✨</span>
+        <h1>Disney Magic Kingdom</h1>
+        <span class="tag">Grand Fireworks</span>
+      </div>
+
+      <div class="top-controls">
+        <button class="btn-icon" id="btn-sound" title="开启/静音音效">
+          <span id="sound-icon">🔊</span>
+        </button>
+        <button class="btn-icon" id="btn-fullscreen" title="全屏沉浸体验">
+          <span>⛶</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Center Narrative Subtitles (Acts) -->
+    <div class="narrative-container" id="narrative-box">
+      <div class="act-badge" id="act-badge">Act I · The Magic Begins</div>
+      <div class="act-title" id="act-title">第一幕 · 奇迹序曲</div>
+      <div class="act-desc" id="act-desc">当星光洒落城堡，静谧的夜空孕育着最初的梦境...</div>
+    </div>
+
+    <!-- Bottom HUD Controls -->
+    <div class="bottom-bar">
+      <div class="timeline-box">
+        <div class="timeline-info">
+          <span>城堡盛典全景进程</span>
+          <span id="current-time-text">0:00 / 1:38</span>
+        </div>
+        <div class="timeline-bar-bg">
+          <div class="timeline-bar-fill" id="timeline-fill"></div>
+        </div>
+      </div>
+
+      <div class="control-hud">
+        <button class="btn-primary" id="btn-play-pause">
+          <span id="play-pause-icon">⏸</span>
+          <span id="play-pause-text">暂停演出</span>
+        </button>
+        <button class="btn-secondary" id="btn-climax">
+          <span>⚡</span>
+          <span>直接进入高潮</span>
+        </button>
+        <button class="btn-secondary" id="btn-restart">
+          <span>↺</span>
+          <span>重新开始</span>
+        </button>
+        <button class="btn-secondary" id="btn-barrage">
+          <span>🎆</span>
+          <span id="barrage-text">狂暴连发</span>
+        </button>
+      </div>
+
+      <div class="interactive-hint">
+        ✦ 点击屏幕任意位置可亲手发射定制烟花 ✦
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Intro Modal -->
+  <div class="intro-modal" id="intro-modal">
+    <div class="intro-card">
+      <div class="intro-icon">🏰</div>
+      <h2>迪士尼梦幻城堡烟花盛典</h2>
+      <p>
+        准备好迎接一场无与伦比的视听盛宴！<br>
+        包含<strong>完整前摇序曲</strong>、<strong>童话城堡灯光投影</strong>与<strong>连续猛烈的终极璀璨烟花狂潮</strong>。
+      </p>
+      <button class="btn-primary btn-start" id="btn-start-show">
+        <span>✨</span>
+        <span>开启梦幻盛典</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/fireworks.js"></script>
+  <script src="js/show.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('fireworks-canvas');
+      const engine = new FireworksEngine(canvas);
+      const controller = new ShowController(engine);
+
+      const introModal = document.getElementById('intro-modal');
+      const btnStart = document.getElementById('btn-start-show');
+      const btnPlayPause = document.getElementById('btn-play-pause');
+      const playPauseIcon = document.getElementById('play-pause-icon');
+      const playPauseText = document.getElementById('play-pause-text');
+      const btnClimax = document.getElementById('btn-climax');
+      const btnRestart = document.getElementById('btn-restart');
+      const btnBarrage = document.getElementById('btn-barrage');
+      const btnSound = document.getElementById('btn-sound');
+      const soundIcon = document.getElementById('sound-icon');
+      const btnFullscreen = document.getElementById('btn-fullscreen');
+
+      let barrageInterval = null;
+
+      // Start Show
+      btnStart.addEventListener('click', () => {
+        introModal.classList.add('hidden');
+        controller.start();
+      });
+
+      // Play / Pause
+      btnPlayPause.addEventListener('click', () => {
+        if (controller.isPlaying) {
+          controller.pause();
+          playPauseIcon.textContent = '▶';
+          playPauseText.textContent = '继续演出';
+        } else {
+          controller.resume();
+          playPauseIcon.textContent = '⏸';
+          playPauseText.textContent = '暂停演出';
+        }
+      });
+
+      // Skip to Climax (猛烈高潮)
+      btnClimax.addEventListener('click', () => {
+        controller.jumpToClimax();
+        playPauseIcon.textContent = '⏸';
+        playPauseText.textContent = '暂停演出';
+      });
+
+      // Restart
+      btnRestart.addEventListener('click', () => {
+        controller.restart();
+        playPauseIcon.textContent = '⏸';
+        playPauseText.textContent = '暂停演出';
+      });
+
+      // Barrage Mode Toggle
+      btnBarrage.addEventListener('click', () => {
+        if (barrageInterval) {
+          clearInterval(barrageInterval);
+          barrageInterval = null;
+          btnBarrage.classList.remove('active');
+        } else {
+          btnBarrage.classList.add('active');
+          barrageInterval = setInterval(() => {
+            const W = engine.width;
+            const H = engine.height;
+            const startX = W * (0.2 + Math.random() * 0.6);
+            const targetX = W * (0.1 + Math.random() * 0.8);
+            const targetY = H * (0.1 + Math.random() * 0.4);
+            const types = ['chrysanthemum', 'peony', 'willow', 'heart', 'ring', 'crossette', 'strobe', 'grandFinale'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            engine.launch(startX, H * 0.88, targetX, targetY, type, 'grandRainbow', 1.3 + Math.random() * 0.5);
+          }, 160);
+        }
+      });
+
+      // Sound Toggle
+      btnSound.addEventListener('click', () => {
+        const muted = window.soundEngine.toggleMute();
+        soundIcon.textContent = muted ? '🔇' : '🔊';
+        btnSound.classList.toggle('active', !muted);
+      });
+
+      // Fullscreen Toggle
+      btnFullscreen.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen().catch(() => {});
+        } else {
+          document.exitFullscreen().catch(() => {});
+        }
+      });
+    });
+  </script>
+</body>
+</html>
